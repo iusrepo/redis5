@@ -1,0 +1,50 @@
+diff -up redis-2.0.0/redis.conf.orig redis-2.0.0/redis.conf
+--- redis-2.0.0/redis.conf.orig	2010-09-04 15:59:16.599206633 -0400
++++ redis-2.0.0/redis.conf	2010-09-04 16:01:59.234209087 -0400
+@@ -14,11 +14,11 @@
+ 
+ # By default Redis does not run as a daemon. Use 'yes' if you need it.
+ # Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
+-daemonize no
++daemonize yes
+ 
+ # When running daemonized, Redis writes a pid file in /var/run/redis.pid by
+ # default. You can specify a custom pid file location here.
+-pidfile /var/run/redis.pid
++pidfile /var/run/redis/redis.pid
+ 
+ # Accept connections on the specified port, default is 6379
+ port 6379
+@@ -26,7 +26,7 @@ port 6379
+ # If you want you can bind a single interface, if the bind option is not
+ # specified all the interfaces will listen for incoming connections.
+ #
+-# bind 127.0.0.1
++bind 127.0.0.1
+ 
+ # Close the connection after a client is idle for N seconds (0 to disable)
+ timeout 300
+@@ -37,12 +37,12 @@ timeout 300
+ # verbose (many rarely useful info, but not a mess like the debug level)
+ # notice (moderately verbose, what you want in production probably)
+ # warning (only very important / critical messages are logged)
+-loglevel verbose
++loglevel notice
+ 
+ # Specify the log file name. Also 'stdout' can be used to force
+ # Redis to log on the standard output. Note that if you use standard
+ # output for logging but daemonize, logs will be sent to /dev/null
+-logfile stdout
++logfile /var/log/redis/redis.log
+ 
+ # Set the number of databases. The default database is DB 0, you can select
+ # a different one on a per-connection basis using SELECT <dbid> where
+@@ -86,7 +86,7 @@ dbfilename dump.rdb
+ # Also the Append Only File will be created inside this directory.
+ # 
+ # Note that you must specify a directory here, not a file name.
+-dir ./
++dir /var/lib/redis/
+ 
+ ################################# REPLICATION #################################
+ 
