@@ -2,7 +2,7 @@
 # http://code.google.com/p/redis/issues/detail?id=202
 
 Name:             redis
-Version:          2.0.3
+Version:          2.0.4
 Release:          1%{?dist}
 Summary:          A persistent key-value database
 
@@ -14,7 +14,6 @@ Source1:          %{name}.logrotate
 Source2:          %{name}.init
 # Update configuration for Fedora
 Patch0:           %{name}-2.0.0-redis.conf.patch
-BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %if !0%{?el5}
 BuildRequires:    tcl >= 8.5
@@ -51,7 +50,6 @@ tclsh tests/test_helper.tcl
 %endif
 
 %install
-rm -fr %{buildroot}
 # Install binaries
 install -p -D -m 755 %{name}-benchmark %{buildroot}%{_bindir}/%{name}-benchmark
 install -p -D -m 755 %{name}-cli %{buildroot}%{_bindir}/%{name}-cli
@@ -65,9 +63,6 @@ install -p -D -m 644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
 install -d -m 755 %{buildroot}%{_localstatedir}/lib/%{name}
 install -d -m 755 %{buildroot}%{_localstatedir}/log/%{name}
 install -d -m 755 %{buildroot}%{_localstatedir}/run/%{name}
-
-%clean
-rm -fr %{buildroot}
 
 %post
 /sbin/chkconfig --add redis
@@ -87,7 +82,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc 00-RELEASENOTES BUGS COPYING Changelog README TODO doc/
+%doc 00-RELEASENOTES BUGS COPYING Changelog README doc/
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
 %dir %attr(0755, redis, root) %{_localstatedir}/lib/%{name}
@@ -98,6 +93,9 @@ fi
 %{_initrddir}/%{name}
 
 %changelog
+* Sun Dec 19 2010 Silas Sewell <silas@sewell.ch> - 2.0.4-1
+- Update to redis 2.0.4
+
 * Tue Oct 19 2010 Silas Sewell <silas@sewell.ch> - 2.0.3-1
 - Update to redis 2.0.3
 
