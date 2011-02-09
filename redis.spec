@@ -3,7 +3,7 @@
 
 Name:             redis
 Version:          2.0.4
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -93,6 +93,9 @@ fi
 %{_initrddir}/%{name}
 
 %changelog
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Sun Dec 19 2010 Silas Sewell <silas@sewell.ch> - 2.0.4-1
 - Update to redis 2.0.4
 
