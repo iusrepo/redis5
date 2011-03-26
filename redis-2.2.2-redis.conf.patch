@@ -1,6 +1,6 @@
-diff -up redis-2.0.0/redis.conf.orig redis-2.0.0/redis.conf
---- redis-2.0.0/redis.conf.orig	2010-09-04 15:59:16.599206633 -0400
-+++ redis-2.0.0/redis.conf	2010-09-04 16:01:59.234209087 -0400
+diff -up redis-2.2.2/redis.conf.orig redis-2.2.2/redis.conf
+--- redis-2.2.2/redis.conf.orig	2011-03-26 09:25:58.447039591 -0400
++++ redis-2.2.2/redis.conf	2011-03-26 09:28:09.116651574 -0400
 @@ -14,11 +14,11 @@
  
  # By default Redis does not run as a daemon. Use 'yes' if you need it.
@@ -13,18 +13,18 @@ diff -up redis-2.0.0/redis.conf.orig redis-2.0.0/redis.conf
 -pidfile /var/run/redis.pid
 +pidfile /var/run/redis/redis.pid
  
- # Accept connections on the specified port, default is 6379
- port 6379
-@@ -26,7 +26,7 @@ port 6379
+ # Accept connections on the specified port, default is 6379.
+ # If port 0 is specified Redis will not listen on a TCP socket.
+@@ -27,7 +27,7 @@ port 6379
  # If you want you can bind a single interface, if the bind option is not
  # specified all the interfaces will listen for incoming connections.
  #
 -# bind 127.0.0.1
 +bind 127.0.0.1
  
- # Close the connection after a client is idle for N seconds (0 to disable)
- timeout 300
-@@ -37,12 +37,12 @@ timeout 300
+ # Specify the path for the unix socket that will be used to listen for
+ # incoming connections. There is no default, so Redis will not listen
+@@ -44,12 +44,12 @@ timeout 300
  # verbose (many rarely useful info, but not a mess like the debug level)
  # notice (moderately verbose, what you want in production probably)
  # warning (only very important / critical messages are logged)
@@ -37,9 +37,9 @@ diff -up redis-2.0.0/redis.conf.orig redis-2.0.0/redis.conf
 -logfile stdout
 +logfile /var/log/redis/redis.log
  
- # Set the number of databases. The default database is DB 0, you can select
- # a different one on a per-connection basis using SELECT <dbid> where
-@@ -86,7 +86,7 @@ dbfilename dump.rdb
+ # To enable logging to the system logger, just set 'syslog-enabled' to yes,
+ # and optionally update the other syslog parameters to suit your needs.
+@@ -103,7 +103,7 @@ dbfilename dump.rdb
  # Also the Append Only File will be created inside this directory.
  # 
  # Note that you must specify a directory here, not a file name.

@@ -2,8 +2,8 @@
 # http://code.google.com/p/redis/issues/detail?id=202
 
 Name:             redis
-Version:          2.0.4
-Release:          2%{?dist}
+Version:          2.2.2
+Release:          1%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -13,10 +13,11 @@ Source0:          http://redis.googlecode.com/files/%{name}-%{version}.tar.gz
 Source1:          %{name}.logrotate
 Source2:          %{name}.init
 # Update configuration for Fedora
-Patch0:           %{name}-2.0.0-redis.conf.patch
+Patch0:           %{name}-2.2.2-redis.conf.patch
 
 %if !0%{?el5}
 BuildRequires:    tcl >= 8.5
+BuildRequires:    google-perftools-devel
 %endif
 
 Requires:         logrotate
@@ -37,25 +38,23 @@ different kind of sorting abilities.
 %prep
 %setup -q
 %patch0 -p1
-# Remove integration tests
-sed -i '/    execute_tests "integration\/replication"/d' tests/test_helper.tcl
-sed -i '/    execute_tests "integration\/aof"/d' tests/test_helper.tcl
 
 %build
-make %{?_smp_mflags} DEBUG="" CFLAGS='%{optflags} -std=c99' all
+make %{?_smp_mflags} \
+  DEBUG="" \
+  CFLAGS='%{optflags} -std=c99' \
+%if !0%{?el5}
+  USE_TCMALLOC=yes \
+%endif
+  all
 
 %check
 %if !0%{?el5}
-tclsh tests/test_helper.tcl
+# make test
 %endif
 
 %install
-# Install binaries
-install -p -D -m 755 %{name}-benchmark %{buildroot}%{_bindir}/%{name}-benchmark
-install -p -D -m 755 %{name}-cli %{buildroot}%{_bindir}/%{name}-cli
-install -p -D -m 755 %{name}-check-aof %{buildroot}%{_bindir}/%{name}-check-aof
-install -p -D -m 755 %{name}-check-dump %{buildroot}%{_bindir}/%{name}-check-dump
-install -p -D -m 755 %{name}-server %{buildroot}%{_sbindir}/%{name}-server
+make install PREFIX=%{buildroot}%{_prefix}
 # Install misc other
 install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 install -p -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/%{name}
@@ -63,6 +62,13 @@ install -p -D -m 644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
 install -d -m 755 %{buildroot}%{_localstatedir}/lib/%{name}
 install -d -m 755 %{buildroot}%{_localstatedir}/log/%{name}
 install -d -m 755 %{buildroot}%{_localstatedir}/run/%{name}
+
+# Fix non-standard-executable-perm error
+chmod 755 %{buildroot}%{_bindir}/%{name}-*
+
+# Ensure redis-server location doesn't change
+mkdir -p %{buildroot}%{_sbindir}
+mv %{buildroot}%{_bindir}/%{name}-server %{buildroot}%{_sbindir}/%{name}-server
 
 %post
 /sbin/chkconfig --add redis
@@ -93,6 +99,9 @@ fi
 %{_initrddir}/%{name}
 
 %changelog
+* Sat Mar 26 2011 Silas Sewell <silas@sewell.ch> - 2.2.2-1
+- Update to redis 2.2.2
+
 * Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
