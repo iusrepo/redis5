@@ -1,9 +1,14 @@
 # Check for status of man pages
 # http://code.google.com/p/redis/issues/detail?id=202
 
+%ifarch %{ix86} x86_64 ppc
+# available only on selected architectures
+%global with_perftools 1
+%endif
+
 Name:             redis
 Version:          2.2.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -17,7 +22,9 @@ Patch0:           %{name}-2.2.2-redis.conf.patch
 
 %if !0%{?el5}
 BuildRequires:    tcl >= 8.5
+%if 0%{?with_perftools}
 BuildRequires:    google-perftools-devel
+%endif
 %endif
 
 Requires:         logrotate
@@ -44,7 +51,9 @@ make %{?_smp_mflags} \
   DEBUG="" \
   CFLAGS='%{optflags} -std=c99' \
 %if !0%{?el5}
+%if 0%{?with_perftools}
   USE_TCMALLOC=yes \
+%endif
 %endif
   all
 
@@ -99,6 +108,9 @@ fi
 %{_initrddir}/%{name}
 
 %changelog
+* Fri May 06 2011 Dan Horák <dan[at]danny.cz> - 2.2.5-2
+- google-perftools exists only on selected architectures
+
 * Sat Apr 23 2011 Silas Sewell <silas@sewell.ch> - 2.2.5-1
 - Update to redis 2.2.5
 
