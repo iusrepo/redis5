@@ -7,13 +7,13 @@
 %endif
 
 Name:             redis
-Version:          2.2.5
-Release:          2%{?dist}
+Version:          2.2.12
+Release:          1%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
 License:          BSD
-URL:              http://code.google.com/p/redis/
+URL:              http://redis.io
 Source0:          http://redis.googlecode.com/files/%{name}-%{version}.tar.gz
 Source1:          %{name}.logrotate
 Source2:          %{name}.init
@@ -108,6 +108,9 @@ fi
 %{_initrddir}/%{name}
 
 %changelog
+* Sun Jul 24 2011 Silas Sewell <silas@sewell.org> - 2.2.12-1
+- Update to redis 2.2.12
+
 * Fri May 06 2011 Dan Horák <dan[at]danny.cz> - 2.2.5-2
 - google-perftools exists only on selected architectures
 
