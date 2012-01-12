@@ -7,7 +7,7 @@
 %endif
 
 Name:             redis
-Version:          2.2.12
+Version:          2.4.6
 Release:          1%{?dist}
 Summary:          A persistent key-value database
 
@@ -17,9 +17,11 @@ URL:              http://redis.io
 Source0:          http://redis.googlecode.com/files/%{name}-%{version}.tar.gz
 Source1:          %{name}.logrotate
 Source2:          %{name}.init
+Source3:          %{name}.service
 # Update configuration for Fedora
-Patch0:           %{name}-2.2.2-redis.conf.patch
+Patch0:           %{name}-2.4.6-redis.conf.patch
 
+BuildRequires:    systemd-units
 %if !0%{?el5}
 BuildRequires:    tcl >= 8.5
 %if 0%{?with_perftools}
@@ -49,7 +51,7 @@ different kind of sorting abilities.
 %build
 make %{?_smp_mflags} \
   DEBUG="" \
-  CFLAGS='%{optflags} -std=c99' \
+  CFLAGS='%{optflags}' \
 %if !0%{?el5}
 %if 0%{?with_perftools}
   USE_TCMALLOC=yes \
@@ -71,6 +73,9 @@ install -p -D -m 644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
 install -d -m 755 %{buildroot}%{_localstatedir}/lib/%{name}
 install -d -m 755 %{buildroot}%{_localstatedir}/log/%{name}
 install -d -m 755 %{buildroot}%{_localstatedir}/run/%{name}
+
+# Install systemd unit
+install -p -D -m 644 %{SOURCE3} %{buildroot}/%{_unitdir}/%{name}.service
 
 # Fix non-standard-executable-perm error
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
@@ -97,7 +102,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc 00-RELEASENOTES BUGS COPYING Changelog README doc/
+%doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING README TODO
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
 %dir %attr(0755, redis, root) %{_localstatedir}/lib/%{name}
@@ -106,8 +111,15 @@ fi
 %{_bindir}/%{name}-*
 %{_sbindir}/%{name}-*
 %{_initrddir}/%{name}
+%{_unitdir}/%{name}.service
 
 %changelog
+* Thu Jan 12 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-1
+- Update to 2.4.6
+- systemd unit file added
+- Compiler flags changed to compile 2.4.6
+- Remove doc/ and Changelog
+
 * Sun Jul 24 2011 Silas Sewell <silas@sewell.org> - 2.2.12-1
 - Update to redis 2.2.12
 
