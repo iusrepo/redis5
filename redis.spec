@@ -8,7 +8,7 @@
 
 Name:             redis
 Version:          2.4.6
-Release:          2%{?dist}
+Release:          3%{?Dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -114,6 +114,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Tue Jan 31 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-3
+- Fix .service file, to match config (Type=simple).
+
 * Tue Jan 31 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-2
 - Fix .service file, credits go to Timon.
 
