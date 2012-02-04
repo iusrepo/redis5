@@ -7,8 +7,8 @@
 %endif
 
 Name:             redis
-Version:          2.4.6
-Release:          4%{?dist}
+Version:          2.4.7
+Release:          1%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -114,6 +114,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Sat Feb 04 2012 Silas Sewell <silas@sewell.org> - 2.4.7-1
+- Update to redis 2.4.7
+
 * Tue Feb 01 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-4
 - Fixed a typo in the spec
 
