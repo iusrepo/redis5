@@ -7,7 +7,7 @@
 %endif
 
 Name:             redis
-Version:          2.4.7
+Version:          2.4.8
 Release:          1%{?dist}
 Summary:          A persistent key-value database
 
@@ -114,6 +114,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Fri Feb 24 2012 Silas Sewell <silas@sewell.org> - 2.4.8-1
+- Update to redis 2.4.8
+
 * Sat Feb 04 2012 Silas Sewell <silas@sewell.org> - 2.4.7-1
 - Update to redis 2.4.7
 
