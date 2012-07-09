@@ -8,7 +8,7 @@
 
 Name:             redis
 Version:          2.4.15
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -102,7 +102,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING README TODO
+%doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING README
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
 %dir %attr(0755, redis, root) %{_localstatedir}/lib/%{name}
@@ -114,6 +114,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Sun Jul 08 2012 Silas Sewell <silas@sewell.org> - 2.4.15-2
+- Remove TODO from docs
+
 * Sun Jul 08 2012 Silas Sewell <silas@sewell.org> - 2.4.15-1
 - Update to redis 2.4.15
 
