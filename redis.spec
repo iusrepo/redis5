@@ -7,8 +7,8 @@
 %endif
 
 Name:             redis
-Version:          2.4.15
-Release:          3%{?dist}
+Version:          2.6.7
+Release:          1%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -19,7 +19,7 @@ Source1:          %{name}.logrotate
 Source2:          %{name}.init
 Source3:          %{name}.service
 # Update configuration for Fedora
-Patch0:           %{name}-2.4.6-redis.conf.patch
+Patch0:           %{name}-2.6.7-redis.conf.patch
 
 BuildRequires:    systemd-units
 %if !0%{?el5}
@@ -114,6 +114,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Thu Dec 27 2012 Silas Sewell <silas@sewell.org> - 2.6.7-1
+- Update to redis 2.6.7
+
 * Sat Jul 21 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4.15-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
