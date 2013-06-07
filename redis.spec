@@ -10,7 +10,7 @@
 
 Name:             redis
 Version:          2.6.13
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -23,6 +23,7 @@ Source3:          %{name}.service
 # Update configuration for Fedora
 Patch0:           %{name}-2.6.13-redis.conf.patch
 Patch1:           %{name}-deps-PIC.patch
+Patch2:           %{name}-deps-unbundle-jemalloc.patch
 
 BuildRequires:    systemd-units
 %if !0%{?el5}
@@ -31,6 +32,7 @@ BuildRequires:    tcl >= 8.5
 BuildRequires:    google-perftools-devel
 %endif
 %endif
+BuildRequires:    jemalloc-devel
 
 Requires:         logrotate
 Requires(post):   chkconfig
@@ -51,8 +53,11 @@ different kind of sorting abilities.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
+rm -rvf deps/jemalloc
+
 export CFLAGS="$RPM_OPT_FLAGS"
 make %{?_smp_mflags} \
   DEBUG="" \
@@ -121,6 +126,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Fri Jun 07 2013 Fabian Deutsch <fabiand@fedoraproject.org> - 2.6.13-2
+- Unbundle jemalloc
+
 * Fri Jun 07 2013 Fabian Deutsch <fabiand@fedoraproject.org> - 2.6.13-1
 - Add compile PIE flag (rhbz#955459)
 - Update to redis 2.6.13 (rhbz#820919)
