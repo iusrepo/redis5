@@ -1,14 +1,16 @@
 # Check for status of man pages
 # http://code.google.com/p/redis/issues/detail?id=202
 
+%global _hardened_build 1
+
 %ifarch %{ix86} x86_64 ppc
 # available only on selected architectures
 %global with_perftools 1
 %endif
 
 Name:             redis
-Version:          2.6.7
-Release:          2%{?dist}
+Version:          2.6.13
+Release:          1%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -19,7 +21,8 @@ Source1:          %{name}.logrotate
 Source2:          %{name}.init
 Source3:          %{name}.service
 # Update configuration for Fedora
-Patch0:           %{name}-2.6.7-redis.conf.patch
+Patch0:           %{name}-2.6.13-redis.conf.patch
+Patch1:           %{name}-deps-PIC.patch
 
 BuildRequires:    systemd-units
 %if !0%{?el5}
@@ -47,11 +50,15 @@ different kind of sorting abilities.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
+export CFLAGS="$RPM_OPT_FLAGS"
 make %{?_smp_mflags} \
   DEBUG="" \
-  CFLAGS='%{optflags}' \
+  LDFLAGS="%{?__global_ldflags}" \
+  CFLAGS="$RPM_OPT_FLAGS -fPIC" \
+  LUA_CFLAGS="-fPIC" \
 %if !0%{?el5}
 %if 0%{?with_perftools}
   USE_TCMALLOC=yes \
@@ -114,6 +121,10 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Fri Jun 07 2013 Fabian Deutsch <fabiand@fedoraproject.org> - 2.6.13-1
+- Add compile PIE flag (rhbz#955459)
+- Update to redis 2.6.13 (rhbz#820919)
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.7-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 

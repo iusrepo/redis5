@@ -1,6 +1,5 @@
-diff -up redis-2.6.7/redis.conf.orig redis-2.6.7/redis.conf
---- redis-2.6.7/redis.conf.orig	2012-12-27 07:54:11.772560595 -0500
-+++ redis-2.6.7/redis.conf	2012-12-27 07:56:12.818571232 -0500
+--- a/redis.conf	2013-04-30 15:15:56.000000000 +0200
++++ b/redis.conf	2013-06-07 08:32:04.571127785 +0200
 @@ -18,7 +18,7 @@ daemonize no
  
  # When running daemonized, Redis writes a pid file in /var/run/redis.pid by
@@ -19,7 +18,7 @@ diff -up redis-2.6.7/redis.conf.orig redis-2.6.7/redis.conf
  
  # Specify the path for the unix socket that will be used to listen for
  # incoming connections. There is no default, so Redis will not listen
-@@ -50,7 +50,7 @@ loglevel notice
+@@ -66,7 +66,7 @@ loglevel notice
  # Specify the log file name. Also 'stdout' can be used to force
  # Redis to log on the standard output. Note that if you use standard
  # output for logging but daemonize, logs will be sent to /dev/null
@@ -28,8 +27,8 @@ diff -up redis-2.6.7/redis.conf.orig redis-2.6.7/redis.conf
  
  # To enable logging to the system logger, just set 'syslog-enabled' to yes,
  # and optionally update the other syslog parameters to suit your needs.
-@@ -134,7 +134,7 @@ dbfilename dump.rdb
- # Also the Append Only File will be created inside this directory.
+@@ -150,7 +150,7 @@ dbfilename dump.rdb
+ # The Append Only File will also be created inside this directory.
  # 
  # Note that you must specify a directory here, not a file name.
 -dir ./
