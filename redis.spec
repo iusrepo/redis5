@@ -10,7 +10,7 @@
 
 Name:             redis
 Version:          2.6.13
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -126,6 +126,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Wed Jun 19 2013 Fabian Deutsch <fabiand@fedoraproject.org> - 2.6.13-3
+- Modify jemalloc patch for s390 compatibility (Thanks sharkcz)
+
 * Fri Jun 07 2013 Fabian Deutsch <fabiand@fedoraproject.org> - 2.6.13-2
 - Unbundle jemalloc
 
