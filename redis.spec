@@ -3,14 +3,14 @@
 
 %global _hardened_build 1
 
-%ifarch %{ix86} x86_64 ppc
+%ifarch %{ix86} x86_64 ppc %{arm}
 # available only on selected architectures
 %global with_perftools 1
 %endif
 
 Name:             redis
 Version:          2.6.13
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -29,7 +29,7 @@ BuildRequires:    systemd-units
 %if !0%{?el5}
 BuildRequires:    tcl >= 8.5
 %if 0%{?with_perftools}
-BuildRequires:    google-perftools-devel
+BuildRequires:    gperftools-devel
 %endif
 %endif
 BuildRequires:    jemalloc-devel
@@ -59,7 +59,7 @@ different kind of sorting abilities.
 rm -rvf deps/jemalloc
 
 export CFLAGS="$RPM_OPT_FLAGS"
-make %{?_smp_mflags} \
+make %{?_smp_mflags} V=1 \
   DEBUG="" \
   LDFLAGS="%{?__global_ldflags}" \
   CFLAGS="$RPM_OPT_FLAGS -fPIC" \
@@ -126,6 +126,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Tue Jul 23 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.6.13-4
+- ARM has gperftools
+
 * Wed Jun 19 2013 Fabian Deutsch <fabiand@fedoraproject.org> - 2.6.13-3
 - Modify jemalloc patch for s390 compatibility (Thanks sharkcz)
 
