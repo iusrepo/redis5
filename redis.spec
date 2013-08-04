@@ -10,7 +10,7 @@
 
 Name:             redis
 Version:          2.6.13
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -126,6 +126,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.13-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Tue Jul 23 2013 Peter Robinson <pbrobinson@fedoraproject.org> 2.6.13-4
 - ARM has gperftools
 
