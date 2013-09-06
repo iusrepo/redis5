@@ -9,14 +9,14 @@
 %endif
 
 Name:             redis
-Version:          2.6.13
-Release:          6%{?dist}
+Version:          2.6.16
+Release:          1%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
 License:          BSD
 URL:              http://redis.io
-Source0:          http://redis.googlecode.com/files/%{name}-%{version}.tar.gz
+Source0:          http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:          %{name}.logrotate
 Source2:          %{name}.init
 Source3:          %{name}.service
@@ -126,7 +126,8 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
-* Fri Sep 06 2013 Fabian Deutsch <fabian.deutsch@gmx.de> - 2.6.13-6
+* Fri Sep 06 2013 Fabian Deutsch <fabian.deutsch@gmx.de> - 2.6.16-1
+- Update to 2.6.16
 - Fix rhbz#973151
 - Fix rhbz#656683
 
@@ -173,7 +174,7 @@ fi
 * Sat Feb 04 2012 Silas Sewell <silas@sewell.org> - 2.4.7-1
 - Update to redis 2.4.7
 
-* Tue Feb 01 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-4
+* Wed Feb 01 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-4
 - Fixed a typo in the spec
 
 * Tue Jan 31 2012 Fabian Deutsch <fabiand@fedoraproject.org> - 2.4.6-3
@@ -213,7 +214,7 @@ fi
 - Update to redis 2.0.2
 - Disable checks section for el5
 
-* Fri Sep 11 2010 Silas Sewell <silas@sewell.ch> - 2.0.1-1
+* Sat Sep 11 2010 Silas Sewell <silas@sewell.ch> - 2.0.1-1
 - Update to redis 2.0.1
 
 * Sat Sep 04 2010 Silas Sewell <silas@sewell.ch> - 2.0.0-1
