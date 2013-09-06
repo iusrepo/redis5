@@ -20,6 +20,7 @@ Source0:          http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:          %{name}.logrotate
 Source2:          %{name}.init
 Source3:          %{name}.service
+Source4:          %{name}.tmpfiles
 # Update configuration for Fedora
 Patch0:           %{name}-2.6.13-redis.conf.patch
 Patch1:           %{name}-deps-PIC.patch
@@ -89,6 +90,9 @@ install -d -m 755 %{buildroot}%{_localstatedir}/run/%{name}
 # Install systemd unit
 install -p -D -m 644 %{SOURCE3} %{buildroot}/%{_unitdir}/%{name}.service
 
+# Install systemd tmpfiles config
+install -p -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
+
 # Fix non-standard-executable-perm error
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
@@ -117,6 +121,7 @@ fi
 %doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING README
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
+%{_tmpfilesdir}/%{name}.conf
 %dir %attr(0755, redis, root) %{_localstatedir}/lib/%{name}
 %dir %attr(0755, redis, root) %{_localstatedir}/log/%{name}
 %ghost %dir %attr(0755, redis, root) %{_localstatedir}/run/%{name}
@@ -130,6 +135,7 @@ fi
 - Update to 2.6.16
 - Fix rhbz#973151
 - Fix rhbz#656683
+- Fix rhbz#977357 (Jan Vcelak <jvcelak@fedoraproject.org>)
 
 * Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.13-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
