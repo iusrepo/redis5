@@ -10,7 +10,7 @@
 
 Name:             redis
 Version:          2.6.13
-Release:          5%{?dist}
+Release:          6%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -119,13 +119,17 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}.conf
 %dir %attr(0755, redis, root) %{_localstatedir}/lib/%{name}
 %dir %attr(0755, redis, root) %{_localstatedir}/log/%{name}
-%dir %attr(0755, redis, root) %{_localstatedir}/run/%{name}
+%ghost %dir %attr(0755, redis, root) %{_localstatedir}/run/%{name}
 %{_bindir}/%{name}-*
 %{_sbindir}/%{name}-*
 %{_initrddir}/%{name}
 %{_unitdir}/%{name}.service
 
 %changelog
+* Fri Sep 06 2013 Fabian Deutsch <fabian.deutsch@gmx.de> - 2.6.13-6
+- Fix rhbz#973151
+- Fix rhbz#656683
+
 * Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.13-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
