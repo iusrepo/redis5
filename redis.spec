@@ -10,7 +10,7 @@
 
 Name:             redis
 Version:          2.6.16
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          A persistent key-value database
 
 Group:            Applications/Databases
@@ -131,6 +131,9 @@ fi
 %{_unitdir}/%{name}.service
 
 %changelog
+* Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.16-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Fri Sep 06 2013 Fabian Deutsch <fabian.deutsch@gmx.de> - 2.6.16-1
 - Update to 2.6.16
 - Fix rhbz#973151
