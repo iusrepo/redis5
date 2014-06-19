@@ -11,6 +11,7 @@
 %global with_systemd 0
 %endif
 
+# tcl 8.4 in EL5.
 %if 0%{?el} && 0%{?el} <= 5
 %global with_tests 0
 %else
@@ -38,14 +39,19 @@ Patch2:            redis-2.8.11-use-system-jemalloc.patch
 Patch3:            redis-2.8.11-disable-test-failed-on-slow-machine.patch
 %if 0%{?with_perftools}
 BuildRequires:     gperftools-devel
-%endif
+%else
 BuildRequires:     jemalloc-devel
+%endif
+%if 0%{?el} && 0%{?el} <= 5
 BuildRequires:     procps-ng
+%else
+BuildRequires:     procps
+%endif
 %if 0%{?with_systemd}
 BuildRequires:     systemd
 %endif
 %if 0%{?with_tests}
-BuildRequires:     tcl >= 8.5
+BuildRequires:     tcl
 %endif
 Requires:          logrotate
 Requires(pre):     shadow-utils
@@ -159,9 +165,11 @@ install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}-server
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
 %check
+%if 0%{?with_tests}
 make test
 %if 0%{?with_sentinel}
 make test-sentinel
+%endif
 %endif
 
 %pre
