@@ -40,6 +40,7 @@ Patch3:            redis-2.8.11-disable-test-failed-on-slow-machine.patch
 BuildRequires:     gperftools-devel
 %endif
 BuildRequires:     jemalloc-devel
+BuildRequires:     procps-ng
 %if 0%{?with_systemd}
 BuildRequires:     systemd
 %endif
