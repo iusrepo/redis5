@@ -42,10 +42,8 @@ BuildRequires:     gperftools-devel
 %else
 BuildRequires:     jemalloc-devel
 %endif
-%if 0%{?el} && 0%{?el} <= 5
+%if 0%{?with_tests}
 BuildRequires:     procps-ng
-%else
-BuildRequires:     procps
 %endif
 %if 0%{?with_systemd}
 BuildRequires:     systemd
