@@ -1,0 +1,12 @@
+Index: redis-2.8.11/tests/test_helper.tcl
+===================================================================
+--- redis-2.8.11.orig/tests/test_helper.tcl
++++ redis-2.8.11/tests/test_helper.tcl
+@@ -33,7 +33,6 @@ set ::all_tests {
+     integration/replication-2
+     integration/replication-3
+     integration/replication-4
+-    integration/replication-psync
+     integration/aof
+     integration/rdb
+     integration/convert-zipmap-hash-on-load

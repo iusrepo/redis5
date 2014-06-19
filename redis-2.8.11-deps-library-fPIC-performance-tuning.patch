@@ -1,0 +1,26 @@
+Index: redis-2.8.11/deps/Makefile
+===================================================================
+--- redis-2.8.11.orig/deps/Makefile
++++ redis-2.8.11/deps/Makefile
+@@ -58,7 +58,7 @@ ifeq ($(uname_S),SunOS)
+ 	LUA_CFLAGS= -D__C99FEATURES__=1
+ endif
+ 
+-LUA_CFLAGS+= -O2 -Wall -DLUA_ANSI $(CFLAGS)
++LUA_CFLAGS+= -O2 -Wall -DLUA_ANSI $(CFLAGS) -fPIC
+ LUA_LDFLAGS+= $(LDFLAGS)
+ 
+ lua: .make-prerequisites
+Index: redis-2.8.11/deps/linenoise/Makefile
+===================================================================
+--- redis-2.8.11.orig/deps/linenoise/Makefile
++++ redis-2.8.11/deps/linenoise/Makefile
+@@ -2,7 +2,7 @@ STD=
+ WARN= -Wall
+ OPT= -Os
+ 
+-R_CFLAGS= $(STD) $(WARN) $(OPT) $(DEBUG) $(CFLAGS)
++R_CFLAGS= $(STD) $(WARN) $(OPT) $(DEBUG) $(CFLAGS) -fPIC
+ R_LDFLAGS= $(LDFLAGS)
+ DEBUG= -g
+ 
