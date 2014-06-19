@@ -1,136 +1,241 @@
-# Check for status of man pages
-# http://code.google.com/p/redis/issues/detail?id=202
-
 %global _hardened_build 1
 
-%ifarch %{ix86} x86_64 ppc %{arm}
-# available only on selected architectures
-%global with_perftools 1
+%global with_perftools 0
+
+# Prior to redis 2.8 sentinel didn't work correctly.
+%global with_sentinel 1
+
+%if 0%{?fedora} >= 15 || 0%{?el} >= 7
+%global with_systemd 1
+%else
+%global with_systemd 0
 %endif
 
-Name:             redis
-Version:          2.6.16
-Release:          2%{?dist}
-Summary:          A persistent key-value database
+%if 0%{?el} && 0%{?el} <= 5
+%global with_tests 0
+%else
+%global with_tests 1
+%endif
 
-Group:            Applications/Databases
-License:          BSD
-URL:              http://redis.io
-Source0:          http://download.redis.io/releases/%{name}-%{version}.tar.gz
-Source1:          %{name}.logrotate
-Source2:          %{name}.init
-Source3:          %{name}.service
-Source4:          %{name}.tmpfiles
+Name:              redis
+Version:           2.8.11
+Release:           1%{?dist}
+Summary:           A persistent caching system, key-value and data structures database
+License:           BSD
+URL:               http://redis.io
+Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
+Source1:           %{name}.logrotate
+Source2:           %{name}-sentinel.service
+Source3:           %{name}-server.service
+Source4:           %{name}.tmpfiles
+Source5:           %{name}-sentinel.init
+Source6:           %{name}-server.init
 # Update configuration for Fedora
-Patch0:           %{name}-2.6.13-redis.conf.patch
-Patch1:           %{name}-deps-PIC.patch
-Patch2:           %{name}-deps-unbundle-jemalloc.patch
-
-BuildRequires:    systemd-units
-%if !0%{?el5}
-BuildRequires:    tcl >= 8.5
+Patch0:            redis-2.8.11-redis-conf-location-variables.patch
+Patch1:            redis-2.8.11-deps-library-fPIC-performance-tuning.patch
+Patch2:            redis-2.8.11-use-system-jemalloc.patch
+# tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
+Patch3:            redis-2.8.11-disable-test-failed-on-slow-machine.patch
 %if 0%{?with_perftools}
-BuildRequires:    gperftools-devel
+BuildRequires:     gperftools-devel
 %endif
+BuildRequires:     jemalloc-devel
+%if 0%{?with_systemd}
+BuildRequires:     systemd
 %endif
-BuildRequires:    jemalloc-devel
-
-Requires:         logrotate
-Requires(post):   chkconfig
-Requires(postun): initscripts
-Requires(pre):    shadow-utils
-Requires(preun):  chkconfig
-Requires(preun):  initscripts
+%if 0%{?with_tests}
+BuildRequires:     tcl >= 8.5
+%endif
+Requires:          logrotate
+Requires(pre):     shadow-utils
+%if 0%{?with_systemd}
+Requires(post):    systemd
+Requires(preun):   systemd
+Requires(postun):  systemd
+%else
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
+%endif
 
 %description
-Redis is an advanced key-value store. It is similar to memcached but the data
-set is not volatile, and values can be strings, exactly like in memcached, but
-also lists, sets, and ordered sets. All this data types can be manipulated with
-atomic operations to push/pop elements, add/remove elements, perform server side
-union, intersection, difference between sets, and so forth. Redis supports
-different kind of sorting abilities.
+Redis is an advanced key-value store. It is often referred to as a data 
+structure server since keys can contain strings, hashes, lists, sets and 
+sorted sets.
+
+You can run atomic operations on these types, like appending to a string;
+incrementing the value in a hash; pushing to a list; computing set 
+intersection, union and difference; or getting the member with highest 
+ranking in a sorted set.
+
+In order to achieve its outstanding performance, Redis works with an 
+in-memory dataset. Depending on your use case, you can persist it either 
+by dumping the dataset to disk every once in a while, or by appending 
+each command to a log.
+
+Redis also supports trivial-to-setup master-slave replication, with very 
+fast non-blocking first synchronization, auto-reconnection on net split 
+and so forth.
+
+Other features include Transactions, Pub/Sub, Lua scripting, Keys with a 
+limited time-to-live, and configuration settings to make Redis behave like 
+a cache.
+
+You can use Redis from most programming languages also.
 
 %prep
 %setup -q
+rm -rvf deps/jemalloc
+
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%if 0%{?with_tests}
+%patch3 -p1
+%endif
+
+# No hidden build.
+sed -i -e 's|\t@|\t|g' deps/lua/src/Makefile
+sed -i -e 's|$(QUIET_CC)||g' src/Makefile
+sed -i -e 's|$(QUIET_LINK)||g' src/Makefile
+sed -i -e 's|$(QUIET_INSTALL)||g' src/Makefile
+# Ensure deps are built with proper flags
+sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/Makefile
+sed -i -e 's|OPTIMIZATION?=-O3|OPTIMIZATION=%{optflags}|g' deps/hiredis/Makefile
+sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/hiredis/Makefile
+sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/linenoise/Makefile
+sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/linenoise/Makefile
 
 %build
-rm -rvf deps/jemalloc
-
-export CFLAGS="$RPM_OPT_FLAGS"
-make %{?_smp_mflags} V=1 \
-  DEBUG="" \
-  LDFLAGS="%{?__global_ldflags}" \
-  CFLAGS="$RPM_OPT_FLAGS -fPIC" \
-  LUA_CFLAGS="-fPIC" \
-%if !0%{?el5}
+make %{?_smp_mflags} \
+    DEBUG="" \
+    LDFLAGS="%{?__global_ldflags}" \
+    CFLAGS+="%{optflags}" \
+    LUA_LDFLAGS+="%{?__global_ldflags}" \
 %if 0%{?with_perftools}
-  USE_TCMALLOC=yes \
+    MALLOC=tcmalloc \
+%else
+    MALLOC=jemalloc \
 %endif
-%endif
-  all
-
-%check
-%if !0%{?el5}
-# make test
-%endif
+    all
 
 %install
-make install PREFIX=%{buildroot}%{_prefix}
-# Install misc other
-install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-install -p -D -m 755 %{SOURCE2} %{buildroot}%{_initrddir}/%{name}
-install -p -D -m 644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
-install -d -m 755 %{buildroot}%{_localstatedir}/lib/%{name}
-install -d -m 755 %{buildroot}%{_localstatedir}/log/%{name}
-install -d -m 755 %{buildroot}%{_localstatedir}/run/%{name}
+make install INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 
-# Install systemd unit
-install -p -D -m 644 %{SOURCE3} %{buildroot}/%{_unitdir}/%{name}.service
+# Filesystem.
+install -d %{buildroot}%{_sharedstatedir}/%{name}
+install -d %{buildroot}%{_localstatedir}/log/%{name}
+install -d %{buildroot}%{_localstatedir}/run/%{name}
 
-# Install systemd tmpfiles config
-install -p -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
+# Install logrotate file.
+install -pDm644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
-# Fix non-standard-executable-perm error
+# Install configuration files.
+install -pDm644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
+%if 0%{?with_sentinel}
+install -pDm644 sentinel.conf %{buildroot}%{_sysconfdir}/%{name}-sentinel.conf
+%endif
+
+# Install Systemd/SysV files.
+%if 0%{?with_systemd}
+mkdir -p %{buildroot}%{_unitdir}
+install -pm644 %{S:3} %{buildroot}%{_unitdir}
+%if 0%{?with_sentinel}
+install -pm644 %{S:2} %{buildroot}%{_unitdir}
+%endif
+
+# Install systemd tmpfiles config.
+install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
+%else
+%if 0%{?with_sentinel}
+install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
+%endif
+install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}-server
+%endif
+
+# Fix non-standard-executable-perm error.
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
-# Ensure redis-server location doesn't change
-mkdir -p %{buildroot}%{_sbindir}
-mv %{buildroot}%{_bindir}/%{name}-server %{buildroot}%{_sbindir}/%{name}-server
-
-%post
-/sbin/chkconfig --add redis
+%check
+make test
+%if 0%{?with_sentinel}
+make test-sentinel
+%endif
 
 %pre
-getent group redis &> /dev/null || groupadd -r redis &> /dev/null
-getent passwd redis &> /dev/null || \
-useradd -r -g redis -d %{_sharedstatedir}/redis -s /sbin/nologin \
--c 'Redis Server' redis &> /dev/null
+getent group %{name} &> /dev/null || groupadd -r %{name} &> /dev/null
+getent passwd %{name} &> /dev/null || \
+useradd -r -g %{name} -d %{_sharedstatedir}/%{name} -s /sbin/nologin \
+-c 'Redis Database Server' %{name} &> /dev/null
 exit 0
 
+%post
+%if 0%{?with_systemd}
+%if 0%{?with_sentinel}
+%systemd_post %{name}-sentinel.service
+%endif
+%systemd_post %{name}-server.service
+%else
+chkconfig --add %{name}-sentinel
+chkconfig --add %{name}-server
+%endif
+
 %preun
-if [ $1 = 0 ]; then
-  /sbin/service redis stop &> /dev/null
-  /sbin/chkconfig --del redis &> /dev/null
+%if 0%{?with_systemd}
+%if 0%{?with_sentinel}
+%systemd_preun %{name}-sentinel.service
+%endif
+%systemd_preun %{name}-server.service
+%else
+if [ $1 -eq 0 ] ; then
+service %{name}-sentinel stop &> /dev/null
+chkconfig --del %{name}-sentinel &> /dev/null
+service %{name}-server stop &> /dev/null
+chkconfig --del %{name}-server &> /dev/null
+%endif
+
+%postun
+%if 0%{?with_systemd}
+%if 0%{?with_sentinel}
+%systemd_postun_with_restart %{name}-sentinel.service
+%endif
+%systemd_postun_with_restart %{name}-server.service
+%else
+if [ "$1" -ge "1" ] ; then
+    service %{name}-sentinel condrestart >/dev/null 2>&1 || :
+    service %{name}-server condrestart >/dev/null 2>&1 || :
 fi
+%endif
 
 %files
-%defattr(-,root,root,-)
-%doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING README
+%doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING MANIFESTO README
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
-%{_tmpfilesdir}/%{name}.conf
-%dir %attr(0755, redis, root) %{_localstatedir}/lib/%{name}
-%dir %attr(0755, redis, root) %{_localstatedir}/log/%{name}
-%ghost %dir %attr(0755, redis, root) %{_localstatedir}/run/%{name}
+%if 0%{?with_sentinel}
+%config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
+%endif
+%dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
+%dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
+%ghost %dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
 %{_bindir}/%{name}-*
-%{_sbindir}/%{name}-*
-%{_initrddir}/%{name}
-%{_unitdir}/%{name}.service
+%if 0%{?with_systemd}
+%{_tmpfilesdir}/%{name}.conf
+%if 0%{?with_sentinel}
+%{_unitdir}/%{name}-sentinel.service
+%endif
+%{_unitdir}/%{name}-server.service
+%else
+%if 0%{?with_sentinel}
+%{_initrddir}/%{name}-sentinel
+%endif
+%{_initrddir}/%{name}-server
+%endif
 
 %changelog
+* Wed Jun 18 2014 Christopher Meng <rpm@cicku.me> - 2.8.11-1
+- Update to 2.8.11
+
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6.16-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
