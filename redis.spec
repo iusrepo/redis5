@@ -19,7 +19,7 @@
 %endif
 
 Name:              redis
-Version:           2.8.11
+Version:           2.8.12
 Release:           1%{?dist}
 Summary:           A persistent caching system, key-value and data structures database
 License:           BSD
@@ -240,6 +240,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 24 2014 Christopher Meng <rpm@cicku.me> - 2.8.12-1
+- Update to 2.8.12
+
 * Wed Jun 18 2014 Christopher Meng <rpm@cicku.me> - 2.8.11-1
 - Update to 2.8.11
 
