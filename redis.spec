@@ -3,7 +3,9 @@
 %global with_perftools 0
 
 # Prior to redis 2.8 sentinel didn't work correctly.
+%if 0%{?fedora} >= 21 || 0%{?el} >= 7
 %global with_sentinel 1
+%endif
 
 %if 0%{?fedora} >= 15 || 0%{?el} >= 7
 %global with_systemd 1
@@ -19,7 +21,7 @@
 %endif
 
 Name:              redis
-Version:           2.8.12
+Version:           2.8.13
 Release:           1%{?dist}
 Summary:           A persistent caching system, key-value and data structures database
 License:           BSD
@@ -91,8 +93,7 @@ You can use Redis from most programming languages also.
 
 %prep
 %setup -q
-rm -rvf deps/jemalloc
-
+rm -frv deps/jemalloc
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -113,7 +114,7 @@ sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/linenoise/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/linenoise/Makefile
 
 %build
-make %{?_smp_mflags} \
+%make_build \
     DEBUG="" \
     LDFLAGS="%{?__global_ldflags}" \
     CFLAGS+="%{optflags}" \
@@ -184,7 +185,9 @@ exit 0
 %endif
 %systemd_post %{name}-server.service
 %else
+%if 0%{?with_sentinel}
 chkconfig --add %{name}-sentinel
+%endif
 chkconfig --add %{name}-server
 %endif
 
@@ -196,8 +199,10 @@ chkconfig --add %{name}-server
 %systemd_preun %{name}-server.service
 %else
 if [ $1 -eq 0 ] ; then
+%if 0%{?with_sentinel}
 service %{name}-sentinel stop &> /dev/null
 chkconfig --del %{name}-sentinel &> /dev/null
+%endif
 service %{name}-server stop &> /dev/null
 chkconfig --del %{name}-server &> /dev/null
 %endif
@@ -210,7 +215,9 @@ chkconfig --del %{name}-server &> /dev/null
 %systemd_postun_with_restart %{name}-server.service
 %else
 if [ "$1" -ge "1" ] ; then
+%if 0%{?with_sentinel}
     service %{name}-sentinel condrestart >/dev/null 2>&1 || :
+%endif
     service %{name}-server condrestart >/dev/null 2>&1 || :
 fi
 %endif
@@ -240,6 +247,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 16 2014 Christopher Meng <rpm@cicku.me> - 2.8.13-1
+- Update to 2.8.13
+
 * Tue Jun 24 2014 Christopher Meng <rpm@cicku.me> - 2.8.12-1
 - Update to 2.8.12
 
