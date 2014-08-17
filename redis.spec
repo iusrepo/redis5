@@ -22,7 +22,7 @@
 
 Name:              redis
 Version:           2.8.13
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent caching system, key-value and data structures database
 License:           BSD
 URL:               http://redis.io
@@ -247,6 +247,9 @@ fi
 %endif
 
 %changelog
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8.13-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Wed Jul 16 2014 Christopher Meng <rpm@cicku.me> - 2.8.13-1
 - Update to 2.8.13
 
