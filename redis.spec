@@ -2,39 +2,41 @@
 
 %global with_perftools 0
 
-# Prior to redis 2.8 sentinel didn't work correctly.
-%if 0%{?fedora} >= 21 || 0%{?el} >= 7
+# redis 2.8 sentinel is the first upstream version to work
+# however as packaged here it is entirely broken
+# FIXME: consider removal into a separate package
+%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
 %global with_sentinel 1
 %endif
 
-%if 0%{?fedora} >= 15 || 0%{?el} >= 7
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 %global with_systemd 1
 %else
 %global with_systemd 0
 %endif
 
 # tcl 8.4 in EL5.
-%if 0%{?el} && 0%{?el} <= 5
+%if 0%{?el5}
 %global with_tests 0
 %else
 %global with_tests 1
 %endif
 
 Name:              redis
-Version:           2.8.13
-Release:           2%{?dist}
+Version:           2.8.14
+Release:           1%{?dist}
 Summary:           A persistent caching system, key-value and data structures database
 License:           BSD
 URL:               http://redis.io
 Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:           %{name}.logrotate
 Source2:           %{name}-sentinel.service
-Source3:           %{name}-server.service
+Source3:           %{name}.service
 Source4:           %{name}.tmpfiles
 Source5:           %{name}-sentinel.init
-Source6:           %{name}-server.init
+Source6:           %{name}.init
 # Update configuration for Fedora
-Patch0:            redis-2.8.11-redis-conf-location-variables.patch
+Patch0:            redis-2.8.11-redis-conf.patch
 Patch1:            redis-2.8.11-deps-library-fPIC-performance-tuning.patch
 Patch2:            redis-2.8.11-use-system-jemalloc.patch
 # tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
@@ -114,7 +116,7 @@ sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/linenoise/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/linenoise/Makefile
 
 %build
-%make_build \
+make %{?_smp_mflags} \
     DEBUG="" \
     LDFLAGS="%{?__global_ldflags}" \
     CFLAGS+="%{optflags}" \
@@ -157,7 +159,7 @@ install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 %if 0%{?with_sentinel}
 install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
 %endif
-install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}-server
+install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
 %endif
 
 # Fix non-standard-executable-perm error.
@@ -183,12 +185,12 @@ exit 0
 %if 0%{?with_sentinel}
 %systemd_post %{name}-sentinel.service
 %endif
-%systemd_post %{name}-server.service
+%systemd_post %{name}.service
 %else
 %if 0%{?with_sentinel}
 chkconfig --add %{name}-sentinel
 %endif
-chkconfig --add %{name}-server
+chkconfig --add %{name}
 %endif
 
 %preun
@@ -196,15 +198,15 @@ chkconfig --add %{name}-server
 %if 0%{?with_sentinel}
 %systemd_preun %{name}-sentinel.service
 %endif
-%systemd_preun %{name}-server.service
+%systemd_preun %{name}.service
 %else
 if [ $1 -eq 0 ] ; then
 %if 0%{?with_sentinel}
 service %{name}-sentinel stop &> /dev/null
 chkconfig --del %{name}-sentinel &> /dev/null
 %endif
-service %{name}-server stop &> /dev/null
-chkconfig --del %{name}-server &> /dev/null
+service %{name} stop &> /dev/null
+chkconfig --del %{name} &> /dev/null
 %endif
 
 %postun
@@ -212,13 +214,13 @@ chkconfig --del %{name}-server &> /dev/null
 %if 0%{?with_sentinel}
 %systemd_postun_with_restart %{name}-sentinel.service
 %endif
-%systemd_postun_with_restart %{name}-server.service
+%systemd_postun_with_restart %{name}.service
 %else
 if [ "$1" -ge "1" ] ; then
 %if 0%{?with_sentinel}
     service %{name}-sentinel condrestart >/dev/null 2>&1 || :
 %endif
-    service %{name}-server condrestart >/dev/null 2>&1 || :
+    service %{name} condrestart >/dev/null 2>&1 || :
 fi
 %endif
 
@@ -231,24 +233,27 @@ fi
 %endif
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
-%ghost %dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
+%dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
 %{_bindir}/%{name}-*
 %if 0%{?with_systemd}
 %{_tmpfilesdir}/%{name}.conf
 %if 0%{?with_sentinel}
 %{_unitdir}/%{name}-sentinel.service
 %endif
-%{_unitdir}/%{name}-server.service
+%{_unitdir}/%{name}.service
 %else
 %if 0%{?with_sentinel}
 %{_initrddir}/%{name}-sentinel
 %endif
-%{_initrddir}/%{name}-server
+%{_initrddir}/%{name}
 %endif
 
 %changelog
-* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8.13-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+* Thu Sep 11 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.14-1
+- Upstream 2.8.14 (RHBZ #1136287)
+- Bugfix for lua scripting users (server crash)
+- Refresh patches
+- backport spec from EPEL7 (thanks Warren)
 
 * Wed Jul 16 2014 Christopher Meng <rpm@cicku.me> - 2.8.13-1
 - Update to 2.8.13

@@ -1,8 +1,17 @@
-Index: redis-2.8.11/src/Makefile
-===================================================================
---- redis-2.8.11.orig/src/Makefile
-+++ redis-2.8.11/src/Makefile
-@@ -84,8 +84,8 @@ endif
+From cfc0d8db5d3ca86aff0c2707d51b9180c407f258 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
+Date: Thu, 11 Sep 2014 13:41:17 +0200
+Subject: [PATCH 3/4] patch2
+
+---
+ src/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Makefile b/src/Makefile
+index 8b3e959..af6a4fe 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -90,8 +90,8 @@ endif
  
  ifeq ($(MALLOC),jemalloc)
  	DEPENDENCY_TARGETS+= jemalloc
@@ -13,3 +22,6 @@ Index: redis-2.8.11/src/Makefile
  endif
  
  REDIS_CC=$(QUIET_CC)$(CC) $(FINAL_CFLAGS)
+-- 
+1.9.3
+

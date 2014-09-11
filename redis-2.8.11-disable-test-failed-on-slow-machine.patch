@@ -1,7 +1,16 @@
-Index: redis-2.8.11/tests/test_helper.tcl
-===================================================================
---- redis-2.8.11.orig/tests/test_helper.tcl
-+++ redis-2.8.11/tests/test_helper.tcl
+From 88d8fa644b2d2fa73802d22fb710181e04c80496 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
+Date: Thu, 11 Sep 2014 13:42:01 +0200
+Subject: [PATCH 4/4] patch3
+
+---
+ tests/test_helper.tcl | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tests/test_helper.tcl b/tests/test_helper.tcl
+index 5f958e5..bcd258a 100644
+--- a/tests/test_helper.tcl
++++ b/tests/test_helper.tcl
 @@ -33,7 +33,6 @@ set ::all_tests {
      integration/replication-2
      integration/replication-3
@@ -10,3 +19,6 @@ Index: redis-2.8.11/tests/test_helper.tcl
      integration/aof
      integration/rdb
      integration/convert-zipmap-hash-on-load
+-- 
+1.9.3
+
