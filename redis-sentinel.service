@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 ExecStartPre=/usr/bin/mkdir -p /var/lib/redis
-ExecStart=/usr/bin/redis-sentinel /etc/sentinel.conf
-ExecStop=/usr/bin/redis-cli shutdown
+ExecStart=/usr/bin/redis-sentinel /etc/redis-sentinel.conf
+ExecStop=/usr/bin/redis-shutdown sentinel
 User=redis
 Group=redis
 

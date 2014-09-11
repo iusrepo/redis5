@@ -1,5 +1,4 @@
 %global _hardened_build 1
-
 %global with_perftools 0
 
 # redis 2.8 sentinel is the first upstream version to work
@@ -15,17 +14,13 @@
 %global with_systemd 0
 %endif
 
-# tcl 8.4 in EL5.
-%if 0%{?el5}
-%global with_tests 0
-%else
-%global with_tests 1
-%endif
+# Tests fail in mock, not in local build.
+%global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
 Version:           2.8.14
-Release:           1%{?dist}
-Summary:           A persistent caching system, key-value and data structures database
+Release:           2%{?dist}
+Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
 Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
@@ -35,6 +30,7 @@ Source3:           %{name}.service
 Source4:           %{name}.tmpfiles
 Source5:           %{name}-sentinel.init
 Source6:           %{name}.init
+Source7:           %{name}-shutdown
 # Update configuration for Fedora
 Patch0:            redis-2.8.11-redis-conf.patch
 Patch1:            redis-2.8.11-deps-library-fPIC-performance-tuning.patch
@@ -55,6 +51,8 @@ BuildRequires:     systemd
 %if 0%{?with_tests}
 BuildRequires:     tcl
 %endif
+# Required for redis-shutdown
+Requires:          /bin/awk
 Requires:          logrotate
 Requires(pre):     shadow-utils
 %if 0%{?with_systemd}
@@ -165,6 +163,13 @@ install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
 # Fix non-standard-executable-perm error.
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
+# create redis-sentinel command as described on
+# http://redis.io/topics/sentinel
+ln -s %{name}-server %{buildroot}%{_bindir}/%{name}-sentinel
+
+# Install redis-shutdown
+install -pDm755 %{S:7} %{buildroot}%{_bindir}/%{name}-shutdown
+
 %check
 %if 0%{?with_tests}
 make test ||:
@@ -174,7 +179,8 @@ make test-sentinel ||:
 %endif
 
 %pre
-getent group %{name} &> /dev/null || groupadd -r %{name} &> /dev/null
+getent group %{name} &> /dev/null || \
+groupadd -r %{name} &> /dev/null
 getent passwd %{name} &> /dev/null || \
 useradd -r -g %{name} -d %{_sharedstatedir}/%{name} -s /sbin/nologin \
 -c 'Redis Database Server' %{name} &> /dev/null
@@ -182,54 +188,56 @@ exit 0
 
 %post
 %if 0%{?with_systemd}
+%systemd_post %{name}.service
 %if 0%{?with_sentinel}
 %systemd_post %{name}-sentinel.service
 %endif
-%systemd_post %{name}.service
 %else
+chkconfig --add %{name}
 %if 0%{?with_sentinel}
 chkconfig --add %{name}-sentinel
 %endif
-chkconfig --add %{name}
 %endif
 
 %preun
 %if 0%{?with_systemd}
+%systemd_preun %{name}.service
 %if 0%{?with_sentinel}
 %systemd_preun %{name}-sentinel.service
 %endif
-%systemd_preun %{name}.service
 %else
 if [ $1 -eq 0 ] ; then
+service %{name} stop &> /dev/null
+chkconfig --del %{name} &> /dev/null
 %if 0%{?with_sentinel}
 service %{name}-sentinel stop &> /dev/null
 chkconfig --del %{name}-sentinel &> /dev/null
 %endif
-service %{name} stop &> /dev/null
-chkconfig --del %{name} &> /dev/null
 %endif
 
 %postun
 %if 0%{?with_systemd}
+%systemd_postun_with_restart %{name}.service
 %if 0%{?with_sentinel}
 %systemd_postun_with_restart %{name}-sentinel.service
 %endif
-%systemd_postun_with_restart %{name}.service
 %else
 if [ "$1" -ge "1" ] ; then
+    service %{name} condrestart >/dev/null 2>&1 || :
 %if 0%{?with_sentinel}
     service %{name}-sentinel condrestart >/dev/null 2>&1 || :
 %endif
-    service %{name} condrestart >/dev/null 2>&1 || :
 fi
 %endif
 
 %files
-%doc 00-RELEASENOTES BUGS CONTRIBUTING COPYING MANIFESTO README
+%{!?_licensedir:%global license %%doc}
+%license COPYING
+%doc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO README
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%config(noreplace) %{_sysconfdir}/%{name}.conf
+%attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
 %if 0%{?with_sentinel}
-%config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
+%attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
 %endif
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
@@ -237,18 +245,23 @@ fi
 %{_bindir}/%{name}-*
 %if 0%{?with_systemd}
 %{_tmpfilesdir}/%{name}.conf
+%{_unitdir}/%{name}.service
 %if 0%{?with_sentinel}
 %{_unitdir}/%{name}-sentinel.service
 %endif
-%{_unitdir}/%{name}.service
 %else
+%{_initrddir}/%{name}
 %if 0%{?with_sentinel}
 %{_initrddir}/%{name}-sentinel
 %endif
-%{_initrddir}/%{name}
 %endif
 
 %changelog
+* Thu Sep 11 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.14-2
+- Cleanup spec
+- Fix shutdown for redis-{server,sentinel}
+- Backport fixes from Remi Collet repository (ie: sentinel working)
+
 * Thu Sep 11 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.14-1
 - Upstream 2.8.14 (RHBZ #1136287)
 - Bugfix for lua scripting users (server crash)
