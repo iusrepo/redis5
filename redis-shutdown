@@ -19,7 +19,7 @@ PORT=`awk '/^[[:blank:]]*port/ { print $2 }' $CONFIG_FILE`
 
 # Just in case, use default port
 if [ "$SERVICE_NAME" = redis ]; then
-    PORT=${PORT:-6279}
+    PORT=${PORT:-6379}
 else
     PORT=${PORT:-26739}
 fi

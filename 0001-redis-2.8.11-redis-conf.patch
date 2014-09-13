@@ -1,14 +1,14 @@
-From 7a50ab1720aba8fb9efc3be1ac354dfe726ef6d8 Mon Sep 17 00:00:00 2001
+From 81f2f0a7341a5d56202506dd68440710188615cd Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Thu, 11 Sep 2014 13:40:31 +0200
-Subject: [PATCH 1/4] patch0
+Subject: [PATCH 1/5] redis 2.8.11: redis conf
 
 ---
  redis.conf | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/redis.conf b/redis.conf
-index 9209ed3..d22e705 100644
+index 24c1b7a..186121a 100644
 --- a/redis.conf
 +++ b/redis.conf
 @@ -38,7 +38,7 @@ daemonize no

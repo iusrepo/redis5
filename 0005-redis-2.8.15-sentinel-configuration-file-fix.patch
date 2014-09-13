@@ -1,0 +1,27 @@
+From 39027199f73e7164fb5f64307f491ebc165a2f5f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
+Date: Sat, 13 Sep 2014 14:03:04 +0200
+Subject: [PATCH 5/5] redis 2.8.15: sentinel configuration file fix
+
+---
+ sentinel.conf | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/sentinel.conf b/sentinel.conf
+index 4b3b792..1e6a11b 100644
+--- a/sentinel.conf
++++ b/sentinel.conf
+@@ -177,5 +177,10 @@ sentinel failover-timeout mymaster 180000
+ # Example:
+ #
+ # sentinel client-reconfig-script mymaster /var/redis/reconfig.sh
++#
++# Specify the log file name. Also the empty string can be used to force
++# Redis to log on the standard output. Note that if you use standard
++# output for logging but daemonize, logs will be sent to /dev/null
++logfile /var/log/redis/sentinel.log
+ 
+ 
+-- 
+1.9.3
+

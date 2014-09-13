@@ -18,8 +18,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           2.8.14
-Release:           2%{?dist}
+Version:           2.8.15
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -31,12 +31,19 @@ Source4:           %{name}.tmpfiles
 Source5:           %{name}-sentinel.init
 Source6:           %{name}.init
 Source7:           %{name}-shutdown
+# To refresh patches:
+# tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%{version} baseline"
+# git am %{patches}
+# Then refresh your patches
+# git format-patch HEAD~<number of expected patches>
 # Update configuration for Fedora
-Patch0:            redis-2.8.11-redis-conf.patch
-Patch1:            redis-2.8.11-deps-library-fPIC-performance-tuning.patch
-Patch2:            redis-2.8.11-use-system-jemalloc.patch
+Patch0001:            0001-redis-2.8.11-redis-conf.patch
+Patch0002:            0002-redis-2.8.11-deps-library-fPIC-performance-tuning.patch
+Patch0003:            0003-redis-2.8.11-use-system-jemalloc.patch
 # tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
-Patch3:            redis-2.8.11-disable-test-failed-on-slow-machine.patch
+Patch0004:            0004-redis-2.8.11-disable-test-failed-on-slow-machine.patch
+# Fix sentinel configuration to use a different log file than redis
+Patch0005:            0005-redis-2.8.15-sentinel-configuration-file-fix.patch
 %if 0%{?with_perftools}
 BuildRequires:     gperftools-devel
 %else
@@ -94,12 +101,11 @@ You can use Redis from most programming languages also.
 %prep
 %setup -q
 rm -frv deps/jemalloc
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%if 0%{?with_tests}
-%patch3 -p1
-%endif
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
 
 # No hidden build.
 sed -i -e 's|\t@|\t|g' deps/lua/src/Makefile
@@ -257,6 +263,11 @@ fi
 %endif
 
 %changelog
+* Sat Sep 13 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.15-1
+- Upstream 2.8.15 (critical bugfix for sentinel)
+- Fix to sentinel systemd service and configuration (thanks Remi)
+- Refresh patch management
+
 * Thu Sep 11 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.14-2
 - Cleanup spec
 - Fix shutdown for redis-{server,sentinel}

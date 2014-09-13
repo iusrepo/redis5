@@ -1,7 +1,7 @@
-From 88d8fa644b2d2fa73802d22fb710181e04c80496 Mon Sep 17 00:00:00 2001
+From 8b0e3e46bc63975d6fc10a65292d1c1400ce38c4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Thu, 11 Sep 2014 13:42:01 +0200
-Subject: [PATCH 4/4] patch3
+Subject: [PATCH 4/5] redis 2.8.11: disable test failed on slow machine
 
 ---
  tests/test_helper.tcl | 1 -
