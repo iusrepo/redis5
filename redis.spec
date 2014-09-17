@@ -19,7 +19,7 @@
 
 Name:              redis
 Version:           2.8.15
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -263,6 +263,9 @@ fi
 %endif
 
 %changelog
+* Wed Sep 17 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.15-2
+- Minor fix to redis-shutdown (from Remi Collet)
+
 * Sat Sep 13 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.15-1
 - Upstream 2.8.15 (critical bugfix for sentinel)
 - Fix to sentinel systemd service and configuration (thanks Remi)
