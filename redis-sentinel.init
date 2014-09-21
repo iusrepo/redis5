@@ -8,11 +8,11 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-NAME="redis-sentinel"
-EXEC="/usr/bin/$NAME"
+name="redis-sentinel"
+exec="/usr/bin/$name"
+shut="/usr/bin/redis-shutdown"
+pidfile="/var/run/redis/sentinel.pid"
 SENTINEL_CONFIG="/etc/redis-sentinel.conf"
-RUNDIR="/var/run/redis"
-PIDFILE="$RUNDIR/redis-sentinel.pid"
 
 [ -e /etc/sysconfig/redis-sentinel ] && . /etc/sysconfig/redis-sentinel
 
@@ -20,13 +20,9 @@ lockfile=/var/lock/subsys/redis
 
 start() {
     [ -f $SENTINEL_CONFIG ] || exit 6
-    [ -x $EXEC ] || exit 5
-    echo -n $"Starting $NAME: "
-    mkdir -p $RUNDIR
-    touch $PIDFILE
-    chown redis:redis $RUNDIR $PIDFILE
-    chmod 750 $RUNDIR
-    daemon --user ${REDIS_USER-redis} --pidfile=$PIDFILE "$EXEC $SENTINEL_CONFIG"
+    [ -x $exec ] || exit 5
+    echo -n $"Starting $name: "
+    daemon --user ${REDIS_USER-redis} "$exec $SENTINEL_CONFIG --daemonize yes --pidfile $pidfile"
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
@@ -34,9 +30,17 @@ start() {
 }
 
 stop() {
-    echo -n $"Stopping $NAME: "
-    killproc -p $PIDFILE $NAME
+    echo -n $"Stopping $name: "
+    [ -x $shut ] && $shut $name
     retval=$?
+    if [ -f $pidfile ]
+    then
+        # shutdown haven't work, try old way
+        killproc -p $pidfile $name
+        retval=$?
+    else
+        success "$name shutdown"
+    fi
     echo
     [ $retval -eq 0 ] && rm -f $lockfile
     return $retval
@@ -52,7 +56,7 @@ reload() {
 }
 
 rh_status() {
-    status -p $PIDFILE $NAME
+    status -p $pidfile $name
 }
 
 rh_status_q() {

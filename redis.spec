@@ -18,8 +18,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           2.8.15
-Release:           2%{?dist}
+Version:           2.8.17
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -263,6 +263,12 @@ fi
 %endif
 
 %changelog
+* Sun Sep 20 2014 Remi Collet <remi@fedoraproject.org> - 2.8.17-1
+- Upstream 2.8.17
+- fix redis-sentinel service unit file for systemd
+- fix redis-shutdown for sentinel
+- also use redis-shutdown in init scripts
+
 * Wed Sep 17 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.15-2
 - Minor fix to redis-shutdown (from Remi Collet)
 
