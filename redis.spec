@@ -262,6 +262,7 @@ fi
 %endif
 %endif
 
+
 %changelog
 * Sun Sep 20 2014 Remi Collet <remi@fedoraproject.org> - 2.8.17-1
 - Upstream 2.8.17
