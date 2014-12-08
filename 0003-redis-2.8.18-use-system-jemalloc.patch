@@ -1,7 +1,7 @@
-From 50a409c4f9f753c97c49fd10a44fd7c5f737aea6 Mon Sep 17 00:00:00 2001
+From d3cdf6aafbe700cd856440058e3b8a345838d326 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
-Date: Thu, 11 Sep 2014 13:41:17 +0200
-Subject: [PATCH 3/5] redis 2.8.11: use system jemalloc
+Date: Mon, 8 Dec 2014 10:03:40 +0100
+Subject: [PATCH 3/5] redis 2.8.18: use system jemalloc
 
 ---
  src/Makefile | 4 ++--
@@ -23,5 +23,5 @@ index 8b3e959..af6a4fe 100644
  
  REDIS_CC=$(QUIET_CC)$(CC) $(FINAL_CFLAGS)
 -- 
-1.9.3
+2.1.0
 

@@ -1,14 +1,14 @@
-From 81f2f0a7341a5d56202506dd68440710188615cd Mon Sep 17 00:00:00 2001
+From 99c028fdf6723f5a32c3fa5e308f9339f95f66ca Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
-Date: Thu, 11 Sep 2014 13:40:31 +0200
-Subject: [PATCH 1/5] redis 2.8.11: redis conf
+Date: Fri, 5 Dec 2014 14:11:15 +0100
+Subject: [PATCH 1/5] redis 2.8.18: redis conf
 
 ---
  redis.conf | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/redis.conf b/redis.conf
-index 24c1b7a..186121a 100644
+index 6c76569..dd0ef34 100644
 --- a/redis.conf
 +++ b/redis.conf
 @@ -38,7 +38,7 @@ daemonize no
@@ -40,7 +40,7 @@ index 24c1b7a..186121a 100644
  # and optionally update the other syslog parameters to suit your needs.
 @@ -184,7 +184,7 @@ dbfilename dump.rdb
  # The Append Only File will also be created inside this directory.
- # 
+ #
  # Note that you must specify a directory here, not a file name.
 -dir ./
 +dir /var/lib/redis/
@@ -48,5 +48,5 @@ index 24c1b7a..186121a 100644
  ################################# REPLICATION #################################
  
 -- 
-1.9.3
+2.1.0
 

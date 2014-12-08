@@ -18,7 +18,7 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           2.8.17
+Version:           2.8.18
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -37,13 +37,13 @@ Source7:           %{name}-shutdown
 # Then refresh your patches
 # git format-patch HEAD~<number of expected patches>
 # Update configuration for Fedora
-Patch0001:            0001-redis-2.8.11-redis-conf.patch
-Patch0002:            0002-redis-2.8.11-deps-library-fPIC-performance-tuning.patch
-Patch0003:            0003-redis-2.8.11-use-system-jemalloc.patch
+Patch0001:            0001-redis-2.8.18-redis-conf.patch
+Patch0002:            0002-redis-2.8.18-deps-library-fPIC-performance-tuning.patch
+Patch0003:            0003-redis-2.8.18-use-system-jemalloc.patch
 # tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
-Patch0004:            0004-redis-2.8.11-disable-test-failed-on-slow-machine.patch
+Patch0004:            0004-redis-2.8.18-disable-test-failed-on-slow-machine.patch
 # Fix sentinel configuration to use a different log file than redis
-Patch0005:            0005-redis-2.8.15-sentinel-configuration-file-fix.patch
+Patch0005:            0005-redis-2.8.18-sentinel-configuration-file-fix.patch
 %if 0%{?with_perftools}
 BuildRequires:     gperftools-devel
 %else
@@ -264,7 +264,11 @@ fi
 
 
 %changelog
-* Sun Sep 20 2014 Remi Collet <remi@fedoraproject.org> - 2.8.17-1
+* Fri Dec 05 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.18-1
+- Upstream 2.8.18
+- Rebased patches
+
+* Sat Sep 20 2014 Remi Collet <remi@fedoraproject.org> - 2.8.17-1
 - Upstream 2.8.17
 - fix redis-sentinel service unit file for systemd
 - fix redis-shutdown for sentinel
