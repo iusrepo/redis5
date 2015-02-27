@@ -1,14 +1,7 @@
 %global _hardened_build 1
 %global with_perftools 0
 
-# redis 2.8 sentinel is the first upstream version to work
-# however as packaged here it is entirely broken
-# FIXME: consider removal into a separate package
-%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
-%global with_sentinel 1
-%endif
-
-%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %global with_systemd 1
 %else
 %global with_systemd 0
@@ -18,7 +11,7 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           2.8.18
+Version:           2.8.19
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -31,6 +24,8 @@ Source4:           %{name}.tmpfiles
 Source5:           %{name}-sentinel.init
 Source6:           %{name}.init
 Source7:           %{name}-shutdown
+Source8:           %{name}-limit-systemd
+Source9:           %{name}-limit-init
 # To refresh patches:
 # tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%{version} baseline"
 # git am %{patches}
@@ -149,21 +144,21 @@ install -pDm644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
 install -pDm644 sentinel.conf %{buildroot}%{_sysconfdir}/%{name}-sentinel.conf
 %endif
 
-# Install Systemd/SysV files.
+# Install Systemd unit files.
 %if 0%{?with_systemd}
 mkdir -p %{buildroot}%{_unitdir}
 install -pm644 %{S:3} %{buildroot}%{_unitdir}
-%if 0%{?with_sentinel}
 install -pm644 %{S:2} %{buildroot}%{_unitdir}
-%endif
 
 # Install systemd tmpfiles config.
 install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
-%else
-%if 0%{?with_sentinel}
+# Install systemd limit files (requires systemd >= 204)
+install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
+install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
+%else # install SysV service files
 install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
-%endif
 install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
+install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
 
 # Fix non-standard-executable-perm error.
@@ -171,7 +166,7 @@ chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
 # create redis-sentinel command as described on
 # http://redis.io/topics/sentinel
-ln -s %{name}-server %{buildroot}%{_bindir}/%{name}-sentinel
+ln -sf %{name}-server %{buildroot}%{_bindir}/%{name}-sentinel
 
 # Install redis-shutdown
 install -pDm755 %{S:7} %{buildroot}%{_bindir}/%{name}-shutdown
@@ -195,9 +190,7 @@ exit 0
 %post
 %if 0%{?with_systemd}
 %systemd_post %{name}.service
-%if 0%{?with_sentinel}
 %systemd_post %{name}-sentinel.service
-%endif
 %else
 chkconfig --add %{name}
 %if 0%{?with_sentinel}
@@ -208,9 +201,7 @@ chkconfig --add %{name}-sentinel
 %preun
 %if 0%{?with_systemd}
 %systemd_preun %{name}.service
-%if 0%{?with_sentinel}
 %systemd_preun %{name}-sentinel.service
-%endif
 %else
 if [ $1 -eq 0 ] ; then
 service %{name} stop &> /dev/null
@@ -224,9 +215,7 @@ chkconfig --del %{name}-sentinel &> /dev/null
 %postun
 %if 0%{?with_systemd}
 %systemd_postun_with_restart %{name}.service
-%if 0%{?with_sentinel}
 %systemd_postun_with_restart %{name}-sentinel.service
-%endif
 %else
 if [ "$1" -ge "1" ] ; then
     service %{name} condrestart >/dev/null 2>&1 || :
@@ -252,18 +241,25 @@ fi
 %if 0%{?with_systemd}
 %{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/%{name}.service
-%if 0%{?with_sentinel}
 %{_unitdir}/%{name}-sentinel.service
-%endif
+%dir %{_sysconfdir}/systemd/system/%{name}.service.d
+%config(noreplace) %{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
+%dir %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d
+%config(noreplace) %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else
 %{_initrddir}/%{name}
-%if 0%{?with_sentinel}
 %{_initrddir}/%{name}-sentinel
-%endif
+%config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
 
 
 %changelog
+* Fri Feb 27 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.19-1
+- Upstream 2.8.19 (RHBZ #1175232)
+- Fix permissions for tmpfiles (RHBZ #1182913)
+- Add limits config files
+- Spec cleanups
+
 * Fri Dec 05 2014 Haïkel Guémar <hguemar@fedoraproject.org> - 2.8.18-1
 - Upstream 2.8.18
 - Rebased patches
