@@ -12,7 +12,7 @@
 
 Name:              redis
 Version:           2.8.19
-Release:           1%{?dist}
+Release:           1%{?dist}.1
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -140,9 +140,7 @@ install -pDm644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 # Install configuration files.
 install -pDm644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
-%if 0%{?with_sentinel}
 install -pDm644 sentinel.conf %{buildroot}%{_sysconfdir}/%{name}-sentinel.conf
-%endif
 
 # Install Systemd unit files.
 %if 0%{?with_systemd}
@@ -174,9 +172,7 @@ install -pDm755 %{S:7} %{buildroot}%{_bindir}/%{name}-shutdown
 %check
 %if 0%{?with_tests}
 make test ||:
-%if 0%{?with_sentinel}
 make test-sentinel ||:
-%endif
 %endif
 
 %pre
@@ -193,9 +189,7 @@ exit 0
 %systemd_post %{name}-sentinel.service
 %else
 chkconfig --add %{name}
-%if 0%{?with_sentinel}
 chkconfig --add %{name}-sentinel
-%endif
 %endif
 
 %preun
@@ -206,10 +200,8 @@ chkconfig --add %{name}-sentinel
 if [ $1 -eq 0 ] ; then
 service %{name} stop &> /dev/null
 chkconfig --del %{name} &> /dev/null
-%if 0%{?with_sentinel}
 service %{name}-sentinel stop &> /dev/null
 chkconfig --del %{name}-sentinel &> /dev/null
-%endif
 %endif
 
 %postun
@@ -219,9 +211,7 @@ chkconfig --del %{name}-sentinel &> /dev/null
 %else
 if [ "$1" -ge "1" ] ; then
     service %{name} condrestart >/dev/null 2>&1 || :
-%if 0%{?with_sentinel}
     service %{name}-sentinel condrestart >/dev/null 2>&1 || :
-%endif
 fi
 %endif
 
@@ -231,12 +221,10 @@ fi
 %doc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO README
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
-%if 0%{?with_sentinel}
 %attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
-%endif
-%dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
-%dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
-%dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
+%dir %attr(0755, redis, redis) %{_sharedstatedir}/%{name}
+%dir %attr(0755, redis, redis) %{_localstatedir}/log/%{name}
+%dir %attr(0755, redis, redis) %{_localstatedir}/run/%{name}
 %{_bindir}/%{name}-*
 %if 0%{?with_systemd}
 %{_tmpfilesdir}/%{name}.conf
