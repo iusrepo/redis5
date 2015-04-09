@@ -198,10 +198,11 @@ chkconfig --add %{name}-sentinel
 %systemd_preun %{name}-sentinel.service
 %else
 if [ $1 -eq 0 ] ; then
-service %{name} stop &> /dev/null
-chkconfig --del %{name} &> /dev/null
-service %{name}-sentinel stop &> /dev/null
-chkconfig --del %{name}-sentinel &> /dev/null
+    service %{name} stop &> /dev/null
+    chkconfig --del %{name} &> /dev/null
+    service %{name}-sentinel stop &> /dev/null
+    chkconfig --del %{name}-sentinel &> /dev/null
+fi
 %endif
 
 %postun
