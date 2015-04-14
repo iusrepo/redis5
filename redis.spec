@@ -243,7 +243,7 @@ fi
 
 
 %changelog
-* Tue Apr 14 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.0-2
+* Tue Apr 14 2015 Remi Collet <remi@fedoraproject.org> - 3.0.0-2
 - rotate /var/log/redis/sentinel.log
 
 * Thu Apr  2 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.0-1
