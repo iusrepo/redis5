@@ -11,8 +11,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.0.0
-Release:           2%{?dist}
+Version:           3.0.1
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Sat May 09 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.1-1
+- Upstream 3.0.1 (RHBZ #1208322)
+
 * Tue Apr 14 2015 Remi Collet <remi@fedoraproject.org> - 3.0.0-2
 - rotate /var/log/redis/sentinel.log
 
