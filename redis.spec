@@ -11,7 +11,7 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.0.1
+Version:           3.0.2
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -243,6 +243,10 @@ fi
 
 
 %changelog
+* Thu Jun 04 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.2-1
+- Upstream 3.0.2 (RHBZ #1228245)
+- Fix Lua sandbox escape and arbitrary code execution (RHBZ #1228331)
+
 * Sat May 09 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.1-1
 - Upstream 3.0.1 (RHBZ #1208322)
 
