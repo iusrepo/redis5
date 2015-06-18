@@ -12,7 +12,7 @@
 
 Name:              redis
 Version:           3.0.2
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Thu Jun 04 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.2-1
 - Upstream 3.0.2 (RHBZ #1228245)
 - Fix Lua sandbox escape and arbitrary code execution (RHBZ #1228331)
