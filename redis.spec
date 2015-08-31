@@ -69,26 +69,26 @@ Requires(postun):  initscripts
 %endif
 
 %description
-Redis is an advanced key-value store. It is often referred to as a data 
-structure server since keys can contain strings, hashes, lists, sets and 
+Redis is an advanced key-value store. It is often referred to as a data
+structure server since keys can contain strings, hashes, lists, sets and
 sorted sets.
 
 You can run atomic operations on these types, like appending to a string;
-incrementing the value in a hash; pushing to a list; computing set 
-intersection, union and difference; or getting the member with highest 
+incrementing the value in a hash; pushing to a list; computing set
+intersection, union and difference; or getting the member with highest
 ranking in a sorted set.
 
-In order to achieve its outstanding performance, Redis works with an 
-in-memory dataset. Depending on your use case, you can persist it either 
-by dumping the dataset to disk every once in a while, or by appending 
+In order to achieve its outstanding performance, Redis works with an
+in-memory dataset. Depending on your use case, you can persist it either
+by dumping the dataset to disk every once in a while, or by appending
 each command to a log.
 
-Redis also supports trivial-to-setup master-slave replication, with very 
-fast non-blocking first synchronization, auto-reconnection on net split 
+Redis also supports trivial-to-setup master-slave replication, with very
+fast non-blocking first synchronization, auto-reconnection on net split
 and so forth.
 
-Other features include Transactions, Pub/Sub, Lua scripting, Keys with a 
-limited time-to-live, and configuration settings to make Redis behave like 
+Other features include Transactions, Pub/Sub, Lua scripting, Keys with a
+limited time-to-live, and configuration settings to make Redis behave like
 a cache.
 
 You can use Redis from most programming languages also.
@@ -107,7 +107,7 @@ sed -i -e 's|\t@|\t|g' deps/lua/src/Makefile
 sed -i -e 's|$(QUIET_CC)||g' src/Makefile
 sed -i -e 's|$(QUIET_LINK)||g' src/Makefile
 sed -i -e 's|$(QUIET_INSTALL)||g' src/Makefile
-# Ensure deps are built with proper flags
+# Ensure deps are built with proper flags.
 sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/Makefile
 sed -i -e 's|OPTIMIZATION?=-O3|OPTIMIZATION=%{optflags}|g' deps/hiredis/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/hiredis/Makefile
@@ -151,12 +151,12 @@ install -pm644 %{S:2} %{buildroot}%{_unitdir}
 # Install systemd tmpfiles config.
 install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 # Install systemd limit files (requires systemd >= 204)
-install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
-install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
+install -pDm644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
+install -pDm644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else # install SysV service files
 install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
 install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
-install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
+install -pDm644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
 
 # Fix non-standard-executable-perm error.
@@ -240,7 +240,6 @@ fi
 %{_initrddir}/%{name}-sentinel
 %config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
-
 
 %changelog
 * Tue Jul 21 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.3-1
