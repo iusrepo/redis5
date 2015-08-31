@@ -12,7 +12,7 @@
 
 Name:              redis
 Version:           3.0.3
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -242,6 +242,9 @@ fi
 %endif
 
 %changelog
+* Sun Aug 30 2015 Christopher Meng <rpm@cicku.me> - 3.0.3-2
+- Rebuilt for jemalloc 4.0.0
+
 * Tue Jul 21 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.3-1
 - Upstream 3.0.3
 
