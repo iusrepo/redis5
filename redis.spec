@@ -11,8 +11,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.0.3
-Release:           2%{?dist}
+Version:           3.0.4
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -242,6 +242,9 @@ fi
 %endif
 
 %changelog
+* Mon Sep 07 2015 Christopher Meng <rpm@cicku.me> - 3.0.4-1
+- Update to 3.0.4
+
 * Sun Aug 30 2015 Christopher Meng <rpm@cicku.me> - 3.0.3-2
 - Rebuilt for jemalloc 4.0.0
 
