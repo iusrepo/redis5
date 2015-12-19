@@ -11,7 +11,7 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.0.5
+Version:           3.0.6
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Sat Dec 19 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.6-1
+- Upstream 3.0.6 (RHBZ#1272281)
+
 * Fri Oct 16 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.5-1
 - Upstream 3.0.5
 - Fix slave/master replication hanging forever in certain case
