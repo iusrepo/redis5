@@ -12,7 +12,7 @@
 
 Name:              redis
 Version:           3.0.6
-Release:           2%{?dist}
+Release:           3%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -243,6 +243,9 @@ fi
 
 
 %changelog
+* Mon Feb  8 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.6-3
+- Fix redis-shutdown to handle password-protected instances shutdown
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.0.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
