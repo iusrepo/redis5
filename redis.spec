@@ -11,8 +11,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.0.6
-Release:           3%{?dist}
+Version:           3.2.3
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -32,8 +32,8 @@ Source9:           %{name}-limit-init
 # Then refresh your patches
 # git format-patch HEAD~<number of expected patches>
 # Update configuration for Fedora
-Patch0001:            0001-redis-2.8.18-redis-conf.patch
-Patch0002:            0002-redis-2.8.18-deps-library-fPIC-performance-tuning.patch
+Patch0001:            0001-redis-3.2.3-redis-conf.patch
+Patch0002:            0002-redis-3.2.3-deps-library-fPIC-performance-tuning.patch
 Patch0003:            0003-redis-2.8.18-use-system-jemalloc.patch
 # tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
 Patch0004:            0004-redis-2.8.18-disable-test-failed-on-slow-machine.patch
@@ -219,7 +219,7 @@ fi
 %files
 %{!?_licensedir:%global license %%doc}
 %license COPYING
-%doc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO README
+%doc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO README.md
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
 %attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
@@ -243,6 +243,11 @@ fi
 
 
 %changelog
+* Thu Aug  4 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.3-1
+- Upstream 3.2.3
+- Security fix for CVE-2013-7458 (redis-cli history world readable)
+- RHBZ#1363670 RHBZ#1363671
+
 * Mon Feb  8 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.0.6-3
 - Fix redis-shutdown to handle password-protected instances shutdown
 

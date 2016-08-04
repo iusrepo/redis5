@@ -1,4 +1,4 @@
-From 2d056b8da3fb3ee4480b7849eefae6637e9ed22c Mon Sep 17 00:00:00 2001
+From 851ea8154a2a8e974d1588be3d6d38262ca2ae33 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Mon, 8 Dec 2014 10:04:18 +0100
 Subject: [PATCH 4/5] redis 2.8.18: disable test failed on slow machine
@@ -8,10 +8,10 @@ Subject: [PATCH 4/5] redis 2.8.18: disable test failed on slow machine
  1 file changed, 1 deletion(-)
 
 diff --git a/tests/test_helper.tcl b/tests/test_helper.tcl
-index d1ebde1..369ebc2 100644
+index 9a6e673..0891619 100644
 --- a/tests/test_helper.tcl
 +++ b/tests/test_helper.tcl
-@@ -33,7 +33,6 @@ set ::all_tests {
+@@ -36,7 +36,6 @@ set ::all_tests {
      integration/replication-2
      integration/replication-3
      integration/replication-4
@@ -20,5 +20,5 @@ index d1ebde1..369ebc2 100644
      integration/rdb
      integration/convert-zipmap-hash-on-load
 -- 
-2.1.0
+2.9.0
 
