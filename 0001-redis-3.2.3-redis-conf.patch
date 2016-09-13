@@ -11,15 +11,6 @@ diff --git a/redis.conf b/redis.conf
 index 22e00bc..46a0154 100644
 --- a/redis.conf
 +++ b/redis.conf
-@@ -147,7 +147,7 @@ supervised no
- #
- # Creating a pid file is best effort: if Redis is not able to create it
- # nothing bad happens, the server will start and run normally.
--pidfile /var/run/redis_6379.pid
-+pidfile /var/run/redis/redis.pid
- 
- # Specify the server verbosity level.
- # This can be one of:
 @@ -160,7 +160,7 @@ loglevel notice
  # Specify the log file name. Also the empty string can be used to force
  # Redis to log on the standard output. Note that if you use standard
