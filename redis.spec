@@ -12,7 +12,7 @@
 
 Name:              redis
 Version:           3.2.3
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -20,7 +20,6 @@ Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:           %{name}.logrotate
 Source2:           %{name}-sentinel.service
 Source3:           %{name}.service
-Source4:           %{name}.tmpfiles
 Source5:           %{name}-sentinel.init
 Source6:           %{name}.init
 Source7:           %{name}-shutdown
@@ -39,6 +38,10 @@ Patch0003:            0003-redis-2.8.18-use-system-jemalloc.patch
 Patch0004:            0004-redis-2.8.18-disable-test-failed-on-slow-machine.patch
 # Fix sentinel configuration to use a different log file than redis
 Patch0005:            0005-redis-2.8.18-sentinel-configuration-file-fix.patch
+# https://github.com/antirez/redis/pull/3491 - man pages
+Patch0006:           %{name}-pr3491.patch
+# https://github.com/antirez/redis/pull/3494 - symlink
+Patch0007:           %{name}-pr3494.patch
 %if 0%{?with_perftools}
 BuildRequires:     gperftools-devel
 %else
@@ -101,6 +104,8 @@ rm -frv deps/jemalloc
 %patch0003 -p1
 %patch0004 -p1
 %patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
 
 # No hidden build.
 sed -i -e 's|\t@|\t|g' deps/lua/src/Makefile
@@ -133,14 +138,13 @@ make install INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 # Filesystem.
 install -d %{buildroot}%{_sharedstatedir}/%{name}
 install -d %{buildroot}%{_localstatedir}/log/%{name}
-install -d %{buildroot}%{_localstatedir}/run/%{name}
 
 # Install logrotate file.
 install -pDm644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 # Install configuration files.
-install -pDm644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
-install -pDm644 sentinel.conf %{buildroot}%{_sysconfdir}/%{name}-sentinel.conf
+install -pDm640 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
+install -pDm640 sentinel.conf %{buildroot}%{_sysconfdir}/%{name}-sentinel.conf
 
 # Install Systemd unit files.
 %if 0%{?with_systemd}
@@ -148,12 +152,11 @@ mkdir -p %{buildroot}%{_unitdir}
 install -pm644 %{S:3} %{buildroot}%{_unitdir}
 install -pm644 %{S:2} %{buildroot}%{_unitdir}
 
-# Install systemd tmpfiles config.
-install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 # Install systemd limit files (requires systemd >= 204)
 install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
 install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else # install SysV service files
+install -d %{buildroot}%{_localstatedir}/run/%{name}
 install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
 install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
 install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
@@ -162,12 +165,16 @@ install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{na
 # Fix non-standard-executable-perm error.
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
-# create redis-sentinel command as described on
-# http://redis.io/topics/sentinel
-ln -sf %{name}-server %{buildroot}%{_bindir}/%{name}-sentinel
-
 # Install redis-shutdown
 install -pDm755 %{S:7} %{buildroot}%{_bindir}/%{name}-shutdown
+
+# Install man pages
+man=$(dirname %{buildroot}%{_mandir})
+for page in man/man?/*; do
+    install -Dpm644 $page $man/$page
+done
+ln -s redis-server.1 %{buildroot}%{_mandir}/man1/redis-sentinel.1
+ln -s redis.conf.5   %{buildroot}%{_mandir}/man5/redis-sentinel.conf.5
 
 %check
 %if 0%{?with_tests}
@@ -221,14 +228,14 @@ fi
 %license COPYING
 %doc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO README.md
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
-%attr(0644, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
-%dir %attr(0755, redis, redis) %{_sharedstatedir}/%{name}
-%dir %attr(0755, redis, redis) %{_localstatedir}/log/%{name}
-%dir %attr(0755, redis, redis) %{_localstatedir}/run/%{name}
+%attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
+%attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
+%dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
+%dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
 %{_bindir}/%{name}-*
+%{_mandir}/man1/%{name}*
+%{_mandir}/man5/%{name}*
 %if 0%{?with_systemd}
-%{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{name}-sentinel.service
 %dir %{_sysconfdir}/systemd/system/%{name}.service.d
@@ -236,6 +243,7 @@ fi
 %dir %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d
 %config(noreplace) %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else
+%dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
 %{_initrddir}/%{name}
 %{_initrddir}/%{name}-sentinel
 %config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
@@ -243,6 +251,14 @@ fi
 
 
 %changelog
+* Fri Sep  9 2016 Remi Collet <remi@fedoraproject.org> - 3.2.3-2
+- add missing man pages #1374577
+  using patch from https://github.com/antirez/redis/pull/3491
+- data and configuration should not be publicly readable #1374700
+- remove /var/run/redis with systemd #1374728
+- provide redis-check-rdb as a symlink to redis-server #1374736
+  using patch from https://github.com/antirez/redis/pull/3494
+
 * Thu Aug  4 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.3-1
 - Upstream 3.2.3
 - Security fix for CVE-2013-7458 (redis-cli history world readable)
