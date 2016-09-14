@@ -51,10 +51,6 @@ restart() {
     start
 }
 
-reload() {
-    false
-}
-
 rh_status() {
     status -p $pidfile $name
 }
@@ -75,13 +71,6 @@ case "$1" in
         ;;
     restart)
         $1
-        ;;
-    reload)
-        rh_status_q || exit 7
-        $1
-        ;;
-    force-reload)
-        force_reload
         ;;
     status)
         rh_status
