@@ -166,7 +166,7 @@ install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{na
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
 # Install redis-shutdown
-install -pDm755 %{S:7} %{buildroot}%{_bindir}/%{name}-shutdown
+install -pDm755 %{S:7} %{buildroot}%{_libexecdir}/%{name}-shutdown
 
 # Install man pages
 man=$(dirname %{buildroot}%{_mandir})
@@ -233,6 +233,7 @@ fi
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
 %{_bindir}/%{name}-*
+%{_libexecdir}/%{name}-*
 %{_mandir}/man1/%{name}*
 %{_mandir}/man5/%{name}*
 %if 0%{?with_systemd}
@@ -251,13 +252,14 @@ fi
 
 
 %changelog
-* Fri Sep  9 2016 Remi Collet <remi@fedoraproject.org> - 3.2.3-2
+* Wed Sep 14 2016 Remi Collet <remi@fedoraproject.org> - 3.2.3-2
 - add missing man pages #1374577
   using patch from https://github.com/antirez/redis/pull/3491
 - data and configuration should not be publicly readable #1374700
 - remove /var/run/redis with systemd #1374728
 - provide redis-check-rdb as a symlink to redis-server #1374736
   using patch from https://github.com/antirez/redis/pull/3494
+- move redis-shutdown to libexec
 
 * Thu Aug  4 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.3-1
 - Upstream 3.2.3
