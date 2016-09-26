@@ -31,17 +31,17 @@ Source9:           %{name}-limit-init
 # Then refresh your patches
 # git format-patch HEAD~<number of expected patches>
 # Update configuration for Fedora
-Patch0001:            0001-redis-3.2.3-redis-conf.patch
-Patch0002:            0002-redis-3.2.3-deps-library-fPIC-performance-tuning.patch
-Patch0003:            0003-redis-2.8.18-use-system-jemalloc.patch
+Patch0001:         0001-redis-3.2.3-redis-conf.patch
+Patch0002:         0002-redis-3.2.3-deps-library-fPIC-performance-tuning.patch
+Patch0003:         0003-redis-2.8.18-use-system-jemalloc.patch
 # tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
-Patch0004:            0004-redis-2.8.18-disable-test-failed-on-slow-machine.patch
+Patch0004:         0004-redis-2.8.18-disable-test-failed-on-slow-machine.patch
 # Fix sentinel configuration to use a different log file than redis
-Patch0005:            0005-redis-2.8.18-sentinel-configuration-file-fix.patch
+Patch0005:         0005-redis-2.8.18-sentinel-configuration-file-fix.patch
 # https://github.com/antirez/redis/pull/3491 - man pages
-Patch0006:           %{name}-pr3491.patch
+Patch0006:         0006-1st-man-pageis-for-redis-cli-redis-benchmark-redis-c.patch
 # https://github.com/antirez/redis/pull/3494 - symlink
-Patch0007:           %{name}-pr3494.patch
+Patch0007:         0007-install-redis-check-rdb-as-a-symlink-instead-of-dupl.patch
 %if 0%{?with_perftools}
 BuildRequires:     gperftools-devel
 %else

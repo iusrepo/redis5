@@ -1,7 +1,7 @@
-From 16501b1430c43d66736ea5530cd68b571af809f2 Mon Sep 17 00:00:00 2001
+From 5c26d1b71675c91ebbcc43c0a9a6c9359e92fd60 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Mon, 8 Dec 2014 10:03:40 +0100
-Subject: [PATCH 3/5] redis 2.8.18: use system jemalloc
+Subject: [PATCH 3/7] redis 2.8.18: use system jemalloc
 
 ---
  src/Makefile | 4 ++--

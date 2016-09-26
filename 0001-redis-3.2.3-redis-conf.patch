@@ -1,14 +1,14 @@
-From 2875336337c14d15878fcc36de83cea350fc47f1 Mon Sep 17 00:00:00 2001
+From 2c3b48cf7fb494e21aa47c03c1de9ce2ee9ccd37 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Fri, 5 Dec 2014 14:11:15 +0100
-Subject: [PATCH 1/5] redis 3.2.3: redis conf
+Subject: [PATCH 1/7] redis 3.2.3: redis conf
 
 ---
- redis.conf | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ redis.conf | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/redis.conf b/redis.conf
-index 22e00bc..46a0154 100644
+index 22e00bc..2bcddb8 100644
 --- a/redis.conf
 +++ b/redis.conf
 @@ -160,7 +160,7 @@ loglevel notice
