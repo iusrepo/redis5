@@ -11,8 +11,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.2.3
-Release:           2%{?dist}
+Version:           3.2.4
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -252,6 +252,10 @@ fi
 
 
 %changelog
+* Mon Sep 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.4-1
+- Upstream 3.2.4
+- Fix buffer overlow (TALOS-2016-0206)
+
 * Wed Sep 14 2016 Remi Collet <remi@fedoraproject.org> - 3.2.3-2
 - add missing man pages #1374577
   using patch from https://github.com/antirez/redis/pull/3491
