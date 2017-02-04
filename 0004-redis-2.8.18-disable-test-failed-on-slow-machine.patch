@@ -1,4 +1,4 @@
-From 8658b92caa8da108a3cdaae7a5d69da43fb4e22e Mon Sep 17 00:00:00 2001
+From a39e81c428eac6745a1aa7d87ca64d78e335b2c3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Mon, 8 Dec 2014 10:04:18 +0100
 Subject: [PATCH 4/7] redis 2.8.18: disable test failed on slow machine
@@ -20,5 +20,5 @@ index 9a6e673..0891619 100644
      integration/rdb
      integration/convert-zipmap-hash-on-load
 -- 
-2.9.0
+2.9.3
 

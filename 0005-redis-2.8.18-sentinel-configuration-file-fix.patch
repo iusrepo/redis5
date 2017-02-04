@@ -1,4 +1,4 @@
-From 833926e852de5bfc46021178c3edb90312c7db41 Mon Sep 17 00:00:00 2001
+From 8aa7a039b6b23f7e9fdb9a459e975f216dd8fdba Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ha=C3=AFkel=20Gu=C3=A9mar?= <hguemar@fedoraproject.org>
 Date: Sat, 13 Sep 2014 14:03:04 +0200
 Subject: [PATCH 5/7] redis 2.8.18: sentinel configuration file fix
@@ -25,5 +25,5 @@ index 0e1b266..428e7b6 100644
  #
  # sentinel notification-script and sentinel reconfig-script are used in order
 -- 
-2.9.0
+2.9.3
 

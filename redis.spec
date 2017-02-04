@@ -11,7 +11,7 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.2.4
+Version:           3.2.7
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -252,6 +252,9 @@ fi
 
 
 %changelog
+* Sat Feb  4 2017 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.7-1
+- Upstream 3.2.7 (important security fix)
+
 * Mon Sep 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.4-1
 - Upstream 3.2.4
 - Fix buffer overlow (TALOS-2016-0206)
