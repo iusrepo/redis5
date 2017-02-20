@@ -20,6 +20,7 @@ Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:           %{name}.logrotate
 Source2:           %{name}-sentinel.service
 Source3:           %{name}.service
+Source4:           %{name}.tmpfiles
 Source5:           %{name}-sentinel.init
 Source6:           %{name}.init
 Source7:           %{name}-shutdown
@@ -138,6 +139,7 @@ make install INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 # Filesystem.
 install -d %{buildroot}%{_sharedstatedir}/%{name}
 install -d %{buildroot}%{_localstatedir}/log/%{name}
+install -d %{buildroot}%{_localstatedir}/run/%{name}
 
 # Install logrotate file.
 install -pDm644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
@@ -152,11 +154,12 @@ mkdir -p %{buildroot}%{_unitdir}
 install -pm644 %{S:3} %{buildroot}%{_unitdir}
 install -pm644 %{S:2} %{buildroot}%{_unitdir}
 
+# Install tmpfiles for legacy configurations.
+install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 # Install systemd limit files (requires systemd >= 204)
 install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
 install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else # install SysV service files
-install -d %{buildroot}%{_localstatedir}/run/%{name}
 install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
 install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
 install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
@@ -232,11 +235,13 @@ fi
 %attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
+%dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
 %{_mandir}/man1/%{name}*
 %{_mandir}/man5/%{name}*
 %if 0%{?with_systemd}
+%{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{name}-sentinel.service
 %dir %{_sysconfdir}/systemd/system/%{name}.service.d
@@ -244,7 +249,6 @@ fi
 %dir %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d
 %config(noreplace) %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else
-%dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
 %{_initrddir}/%{name}
 %{_initrddir}/%{name}-sentinel
 %config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
@@ -257,6 +261,9 @@ fi
 
 * Sat Feb  4 2017 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.7-1
 - Upstream 3.2.7 (important security fix)
+
+* Sat Nov 05 2016 Alan Pevec <apevec AT redhat.com> - 3.2.4-2
+- Install tmpfiles and /run/redis for legacy configurations
 
 * Mon Sep 26 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.4-1
 - Upstream 3.2.4
