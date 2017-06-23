@@ -11,7 +11,7 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.2.8
+Version:           3.2.9
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -235,7 +235,7 @@ fi
 %attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
-%dir %attr(0750, redis, redis) %{_localstatedir}/run/%{name}
+%dir %attr(0750, redis, redis) %ghost %{_localstatedir}/run/%{name}
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
 %{_mandir}/man1/%{name}*
@@ -256,6 +256,12 @@ fi
 
 
 %changelog
+* Mon May 29 2017 Nathan Scott <nathans@redhat.com> - 3.2.9-1
+- Upstream 3.2.9
+- Add RuntimeDirectory=redis to systemd unit file (RHBZ #1454700)
+- Mark rundir as %ghost since it may disappear (tmpfs - #1454700)
+- Fix a shutdown failure with Unix domain sockets (RHBZ #1444988)
+
 * Mon Feb 20 2017 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.8-1
 - Upstream 3.2.8
 - bugfix for #3796 (MIGRATE could cause server crash  after socket error)

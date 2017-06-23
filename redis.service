@@ -7,6 +7,8 @@ ExecStart=/usr/bin/redis-server /etc/redis.conf --daemonize no
 ExecStop=/usr/libexec/redis-shutdown
 User=redis
 Group=redis
+RuntimeDirectory=redis
+RuntimeDirectoryMode=0750
 
 [Install]
 WantedBy=multi-user.target

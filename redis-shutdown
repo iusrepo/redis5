@@ -15,9 +15,10 @@ fi
 CONFIG_FILE="/etc/$SERVICE_NAME.conf"
 
 # Use awk to retrieve host, port from config file
-HOST=`awk '/^[[:blank:]]*bind/ { print $2 }' $CONFIG_FILE`
-PORT=`awk '/^[[:blank:]]*port/ { print $2 }' $CONFIG_FILE`
-PASS=`awk '/^[[:blank:]]*requirepass/ { print $2 }' $CONFIG_FILE`
+HOST=`awk '/^[[:blank:]]*bind/ { print $2 }' $CONFIG_FILE | tail -n1`
+PORT=`awk '/^[[:blank:]]*port/ { print $2 }' $CONFIG_FILE | tail -n1`
+PASS=`awk '/^[[:blank:]]*requirepass/ { print $2 }' $CONFIG_FILE | tail -n1`
+SOCK=`awk '/^[[:blank:]]*unixsocket\s/ { print $2 }' $CONFIG_FILE | tail -n1`
 
 # Just in case, use default host, port
 HOST=${HOST:-127.0.0.1}
@@ -32,4 +33,8 @@ fi
 [ -z "$PASS"  ] || ADDITIONAL_PARAMS="-a $PASS"
 
 # shutdown the service properly
-$REDIS_CLI -h $HOST -p $PORT $ADDITIONAL_PARAMS shutdown
+if [ -e "$SOCK" ] ; then
+	$REDIS_CLI -s $SOCK $ADDITIONAL_PARAMS shutdown
+else
+	$REDIS_CLI -h $HOST -p $PORT $ADDITIONAL_PARAMS shutdown
+fi
