@@ -12,7 +12,7 @@
 
 Name:              redis
 Version:           3.2.9
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -256,6 +256,9 @@ fi
 
 
 %changelog
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.2.9-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Mon May 29 2017 Nathan Scott <nathans@redhat.com> - 3.2.9-1
 - Upstream 3.2.9
 - Add RuntimeDirectory=redis to systemd unit file (RHBZ #1454700)
