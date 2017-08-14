@@ -11,8 +11,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.2.9
-Release:           2%{?dist}
+Version:           3.2.10
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -20,12 +20,11 @@ Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:           %{name}.logrotate
 Source2:           %{name}-sentinel.service
 Source3:           %{name}.service
-Source4:           %{name}.tmpfiles
-Source5:           %{name}-sentinel.init
-Source6:           %{name}.init
-Source7:           %{name}-shutdown
-Source8:           %{name}-limit-systemd
-Source9:           %{name}-limit-init
+Source4:           %{name}-sentinel.init
+Source5:           %{name}.init
+Source6:           %{name}-shutdown
+Source7:           %{name}-limit-systemd
+Source8:           %{name}-limit-init
 # To refresh patches:
 # tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%{version} baseline"
 # git am %{patches}
@@ -154,22 +153,20 @@ mkdir -p %{buildroot}%{_unitdir}
 install -pm644 %{S:3} %{buildroot}%{_unitdir}
 install -pm644 %{S:2} %{buildroot}%{_unitdir}
 
-# Install tmpfiles for legacy configurations.
-install -pDm644 %{S:4} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 # Install systemd limit files (requires systemd >= 204)
-install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
-install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
+install -p -D -m 644 %{S:7} %{buildroot}%{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
+install -p -D -m 644 %{S:7} %{buildroot}%{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
 %else # install SysV service files
-install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}-sentinel
-install -pDm755 %{S:6} %{buildroot}%{_initrddir}/%{name}
-install -p -D -m 644 %{S:9} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
+install -pDm755 %{S:4} %{buildroot}%{_initrddir}/%{name}-sentinel
+install -pDm755 %{S:5} %{buildroot}%{_initrddir}/%{name}
+install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
 
 # Fix non-standard-executable-perm error.
 chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
 # Install redis-shutdown
-install -pDm755 %{S:7} %{buildroot}%{_libexecdir}/%{name}-shutdown
+install -pDm755 %{S:6} %{buildroot}%{_libexecdir}/%{name}-shutdown
 
 # Install man pages
 man=$(dirname %{buildroot}%{_mandir})
@@ -241,7 +238,6 @@ fi
 %{_mandir}/man1/%{name}*
 %{_mandir}/man5/%{name}*
 %if 0%{?with_systemd}
-%{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{name}-sentinel.service
 %dir %{_sysconfdir}/systemd/system/%{name}.service.d
@@ -256,6 +252,11 @@ fi
 
 
 %changelog
+* Mon Jul 31 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-1
+- Upstream 3.2.10 release
+- Ensure both the redis and redis-sentinel service files set correct perms
+- Dropped systemd tmpfiles source, handled directly in systemd service files
+
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.2.9-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
