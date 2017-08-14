@@ -2,6 +2,12 @@
 %global with_perftools 0
 
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+%global with_redistrib 1
+%else
+%global with_redistrib 0
+%endif
+
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %global with_systemd 1
 %else
 %global with_systemd 0
@@ -12,7 +18,7 @@
 
 Name:              redis
 Version:           3.2.10
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -96,6 +102,18 @@ a cache.
 
 You can use Redis from most programming languages also.
 
+%if 0%{?with_redistrib}
+%package           trib
+Summary:           Cluster management script for Redis
+BuildArch:         noarch
+Requires:          ruby
+Requires:          rubygem-redis
+
+%description       trib
+Redis cluster management utility providing cluster creation, node addition
+and removal, status checks, resharding, rebalancing, and other operations.
+%endif
+
 %prep
 %setup -q
 rm -frv deps/jemalloc
@@ -168,6 +186,11 @@ chmod 755 %{buildroot}%{_bindir}/%{name}-*
 # Install redis-shutdown
 install -pDm755 %{S:6} %{buildroot}%{_libexecdir}/%{name}-shutdown
 
+%if 0%{?with_redistrib}
+# Install redis-trib
+install -pDm755 src/%{name}-trib.rb %{buildroot}%{_bindir}/%{name}-trib
+%endif
+
 # Install man pages
 man=$(dirname %{buildroot}%{_mandir})
 for page in man/man?/*; do
@@ -233,6 +256,9 @@ fi
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
 %dir %attr(0750, redis, redis) %ghost %{_localstatedir}/run/%{name}
+%if 0%{?with_redistrib}
+%exclude %{_bindir}/%{name}-trib
+%endif
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
 %{_mandir}/man1/%{name}*
@@ -250,15 +276,24 @@ fi
 %config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
 
+%if 0%{?with_redistrib}
+%files trib
+%license COPYING
+%{_bindir}/%{name}-trib
+%endif
+
 
 %changelog
+* Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-2
+- Add redis-trib based on patch from Sebastian Saletnik.  (RHBZ #1215654)
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.2.9-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
 * Mon Jul 31 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-1
 - Upstream 3.2.10 release
 - Ensure both the redis and redis-sentinel service files set correct perms
 - Dropped systemd tmpfiles source, handled directly in systemd service files
-
-* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.2.9-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.2.9-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
