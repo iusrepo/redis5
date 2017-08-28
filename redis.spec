@@ -18,7 +18,7 @@
 
 Name:              redis
 Version:           3.2.10
-Release:           2%{?dist}
+Release:           3%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -37,17 +37,10 @@ Source8:           %{name}-limit-init
 # Then refresh your patches
 # git format-patch HEAD~<number of expected patches>
 # Update configuration for Fedora
-Patch0001:         0001-redis-3.2.3-redis-conf.patch
-Patch0002:         0002-redis-3.2.3-deps-library-fPIC-performance-tuning.patch
-Patch0003:         0003-redis-2.8.18-use-system-jemalloc.patch
-# tests/integration/replication-psync.tcl failed on slow machines(GITHUB #1417)
-Patch0004:         0004-redis-2.8.18-disable-test-failed-on-slow-machine.patch
-# Fix sentinel configuration to use a different log file than redis
-Patch0005:         0005-redis-2.8.18-sentinel-configuration-file-fix.patch
 # https://github.com/antirez/redis/pull/3491 - man pages
-Patch0006:         0006-1st-man-pageis-for-redis-cli-redis-benchmark-redis-c.patch
+Patch0001:         0001-1st-man-pageis-for-redis-cli-redis-benchmark-redis-c.patch
 # https://github.com/antirez/redis/pull/3494 - symlink
-Patch0007:         0007-install-redis-check-rdb-as-a-symlink-instead-of-dupl.patch
+Patch0002:         0002-install-redis-check-rdb-as-a-symlink-instead-of-dupl.patch
 %if 0%{?with_perftools}
 BuildRequires:     gperftools-devel
 %else
@@ -119,24 +112,26 @@ and removal, status checks, resharding, rebalancing, and other operations.
 rm -frv deps/jemalloc
 %patch0001 -p1
 %patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
-%patch0006 -p1
-%patch0007 -p1
 
 # No hidden build.
 sed -i -e 's|\t@|\t|g' deps/lua/src/Makefile
 sed -i -e 's|$(QUIET_CC)||g' src/Makefile
 sed -i -e 's|$(QUIET_LINK)||g' src/Makefile
 sed -i -e 's|$(QUIET_INSTALL)||g' src/Makefile
+# Use system jemalloc library
+sed -i -e '/cd jemalloc && /d' deps/Makefile
+sed -i -e 's|../deps/jemalloc/lib/libjemalloc.a|-ljemalloc -ldl|g' src/Makefile
+sed -i -e 's|-I../deps/jemalloc.*|-DJEMALLOC_NO_DEMANGLE -I/usr/include/jemalloc|g' src/Makefile
 # Ensure deps are built with proper flags
-sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/Makefile
+sed -i -e 's|$(CFLAGS)|%{optflags} -fPIC|g' deps/Makefile
 sed -i -e 's|OPTIMIZATION?=-O3|OPTIMIZATION=%{optflags}|g' deps/hiredis/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/hiredis/Makefile
-sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/linenoise/Makefile
+sed -i -e 's|$(CFLAGS)|%{optflags} -fPIC|g' deps/linenoise/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/linenoise/Makefile
 # Configuration file changes and additions
+sed -i -e 's|^logfile .*$|logfile /var/log/redis/redis.log|g' redis.conf
+sed -i -e '$ alogfile /var/log/redis/sentinel.log' sentinel.conf
+sed -i -e 's|^dir .*$|dir /var/lib/redis|g' redis.conf
 %if 0%{?with_systemd}
 sed -i -e 's|^supervised .*$|supervised systemd|g' redis.conf
 sed -i -e '$ asupervised systemd|g' sentinel.conf
@@ -146,7 +141,7 @@ sed -i -e '$ asupervised systemd|g' sentinel.conf
 make %{?_smp_mflags} \
     DEBUG="" \
     LDFLAGS="%{?__global_ldflags}" \
-    CFLAGS+="%{optflags}" \
+    CFLAGS+="%{optflags} -fPIC" \
     LUA_LDFLAGS+="%{?__global_ldflags}" \
 %if 0%{?with_perftools}
     MALLOC=tcmalloc \
@@ -206,7 +201,8 @@ ln -s redis.conf.5   %{buildroot}%{_mandir}/man5/redis-sentinel.conf.5
 
 %check
 %if 0%{?with_tests}
-make test ||:
+# https://github.com/antirez/redis/issues/1417 (for "taskset -c 1")
+taskset -c 1 make test ||:
 make test-sentinel ||:
 %endif
 
@@ -289,6 +285,9 @@ fi
 
 
 %changelog
+* Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-3
+- Switch to using Type=notify for Redis systemd services (RHBZ #1172841)
+
 * Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-2
 - Add redis-trib based on patch from Sebastian Saletnik.  (RHBZ #1215654)
 
