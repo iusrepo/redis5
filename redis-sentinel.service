@@ -5,6 +5,7 @@ After=network.target
 [Service]
 ExecStart=/usr/bin/redis-sentinel /etc/redis-sentinel.conf --daemonize no
 ExecStop=/usr/libexec/redis-shutdown redis-sentinel
+Type=notify
 User=redis
 Group=redis
 RuntimeDirectory=redis

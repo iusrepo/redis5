@@ -136,6 +136,11 @@ sed -i -e 's|OPTIMIZATION?=-O3|OPTIMIZATION=%{optflags}|g' deps/hiredis/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/hiredis/Makefile
 sed -i -e 's|$(CFLAGS)|%{optflags}|g' deps/linenoise/Makefile
 sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/linenoise/Makefile
+# Configuration file changes and additions
+%if 0%{?with_systemd}
+sed -i -e 's|^supervised .*$|supervised systemd|g' redis.conf
+sed -i -e '$ asupervised systemd|g' sentinel.conf
+%endif
 
 %build
 make %{?_smp_mflags} \
