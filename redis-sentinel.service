@@ -3,7 +3,7 @@ Description=Redis Sentinel
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/redis-sentinel /etc/redis-sentinel.conf --daemonize no
+ExecStart=/usr/bin/redis-sentinel /etc/redis-sentinel.conf --supervised systemd
 ExecStop=/usr/libexec/redis-shutdown redis-sentinel
 Type=notify
 User=redis

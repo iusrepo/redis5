@@ -1,7 +1,7 @@
 From bcd509def0d4a75f56d9d6a53eea280127803eb4 Mon Sep 17 00:00:00 2001
 From: Remi Collet <fedora@famillecollet.com>
 Date: Fri, 9 Sep 2016 17:23:27 +0200
-Subject: [PATCH 7/7] install redis-check-rdb as a symlink instead of
+Subject: [PATCH 2/2] install redis-check-rdb as a symlink instead of
  duplicating the binary
 
 ---

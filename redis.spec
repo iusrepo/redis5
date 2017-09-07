@@ -69,6 +69,9 @@ Requires(preun):   chkconfig
 Requires(preun):   initscripts
 Requires(postun):  initscripts
 %endif
+Provides:          bundled(hiredis)
+Provides:          bundled(lua-libs)
+Provides:          bundled(linenoise)
 
 %description
 Redis is an advanced key-value store. It is often referred to as a data 
@@ -165,7 +168,7 @@ install -pDm644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 install -pDm640 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}.conf
 install -pDm640 sentinel.conf %{buildroot}%{_sysconfdir}/%{name}-sentinel.conf
 
-# Install Systemd unit files.
+# Install systemd unit files.
 %if 0%{?with_systemd}
 mkdir -p %{buildroot}%{_unitdir}
 install -pm644 %{S:3} %{buildroot}%{_unitdir}
@@ -285,8 +288,9 @@ fi
 
 
 %changelog
-* Mon Aug 28 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-3
+* Wed Sep 06 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-3
 - Switch to using Type=notify for Redis systemd services (RHBZ #1172841)
+- Add Provides:bundled hiredis, linenoise, lua-libs clauses (RHBZ #788500)
 
 * Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-2
 - Add redis-trib based on patch from Sebastian Saletnik.  (RHBZ #1215654)
