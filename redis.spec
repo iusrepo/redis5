@@ -17,8 +17,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.2.10
-Release:           3%{?dist}
+Version:           4.0.1
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -98,6 +98,15 @@ a cache.
 
 You can use Redis from most programming languages also.
 
+%package           devel
+Summary:           Development header for Redis module development
+# Header-Only Library (https://fedoraproject.org/wiki/Packaging:Guidelines)
+Provides:          %{name}-static = %{version}-%{release}
+
+%description       devel
+Header file required for building loadable Redis modules. Detailed API
+documentation available at [http://redis-module-redoc.readthedocs.io/]
+
 %if 0%{?with_redistrib}
 %package           trib
 Summary:           Cluster management script for Redis
@@ -151,6 +160,7 @@ make %{?_smp_mflags} \
 %else
     MALLOC=jemalloc \
 %endif
+    INSTALL="install -p" PREFIX=%{buildroot}%{_prefix} \
     all
 
 %install
@@ -188,6 +198,9 @@ chmod 755 %{buildroot}%{_bindir}/%{name}-*
 
 # Install redis-shutdown
 install -pDm755 %{S:6} %{buildroot}%{_libexecdir}/%{name}-shutdown
+
+# Install redis module header
+install -pDm644 src/%{name}module.h %{buildroot}%{_includedir}/%{name}module.h
 
 %if 0%{?with_redistrib}
 # Install redis-trib
@@ -263,6 +276,7 @@ fi
 %if 0%{?with_redistrib}
 %exclude %{_bindir}/%{name}-trib
 %endif
+%exclude %{_includedir}/%{name}module.h
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
 %{_mandir}/man1/%{name}*
@@ -280,6 +294,10 @@ fi
 %config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
 %endif
 
+%files devel
+%license COPYING
+%{_includedir}/%{name}module.h
+
 %if 0%{?with_redistrib}
 %files trib
 %license COPYING
@@ -288,9 +306,15 @@ fi
 
 
 %changelog
-* Wed Sep 06 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-3
+
+* Wed Sep 06 2017 Nathan Scott <nathans@redhat.com> - 4.0.1-2
 - Switch to using Type=notify for Redis systemd services (RHBZ #1172841)
 - Add Provides:bundled hiredis, linenoise, lua-libs clauses (RHBZ #788500)
+
+* Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 4.0.1-1
+- Upstream 4.0.1 release.  (RHBZ #1389592)
+- Add redis-devel for loadable module development.
+- Provide redis-check-aof as a symlink to redis-server also now.
 
 * Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-2
 - Add redis-trib based on patch from Sebastian Saletnik.  (RHBZ #1215654)

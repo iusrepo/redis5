@@ -1,4 +1,4 @@
-From e1ded77b1f80a5241f2f9b5088b9063ecbeb72c9 Mon Sep 17 00:00:00 2001
+From ed77684a7eb20635e7f8f8f3ead277c3c48182fe Mon Sep 17 00:00:00 2001
 From: Remi Collet <fedora@famillecollet.com>
 Date: Thu, 8 Sep 2016 14:51:15 +0200
 Subject: [PATCH 1/2] 1st man pageis for - redis-cli - redis-benchmark -
