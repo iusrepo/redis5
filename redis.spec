@@ -17,8 +17,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           3.2.10
-Release:           3%{?dist}
+Version:           3.2.11
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -288,7 +288,8 @@ fi
 
 
 %changelog
-* Wed Sep 06 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-3
+* Tue Sep 26 2017 Nathan Scott <nathans@redhat.com> - 3.2.11-1
+- Upstream 3.2.11 bug-fix-only release
 - Switch to using Type=notify for Redis systemd services (RHBZ #1172841)
 - Add Provides:bundled hiredis, linenoise, lua-libs clauses (RHBZ #788500)
 
