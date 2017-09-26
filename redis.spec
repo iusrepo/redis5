@@ -130,7 +130,7 @@ sed -i -e 's|^dir .*$|dir /var/lib/redis|g' redis.conf
 %else
 %global malloc_flags	MALLOC=jemalloc
 %endif
-%global make_flags	DEBUG="" V="echo" LDFLAGS="%{?__global_ldflags}" CFLAGS+="%{optflags} -fPIC" %{malloc_flags} LUA_LDFLAGS+="%{?__global_ldflags}" INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
+%global make_flags	DEBUG="" V="echo" LDFLAGS="%{?__global_ldflags}" CFLAGS+="%{optflags} -fPIC" %{malloc_flags} INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 
 %build
 make %{?_smp_mflags} %{make_flags} all
