@@ -100,7 +100,6 @@ You can use Redis from most programming languages also.
 
 %package           devel
 Summary:           Development header for Redis module development
-BuildArch:         noarch
 # Header-Only Library (https://fedoraproject.org/wiki/Packaging:Guidelines)
 Provides:          %{name}-static = %{version}-%{release}
 
