@@ -1,4 +1,4 @@
-From a7e5d1dab11be34fafe80180f58411f02cd98026 Mon Sep 17 00:00:00 2001
+From 992c773e70462a6fbe1536e18e673c9ab55d5901 Mon Sep 17 00:00:00 2001
 From: Remi Collet <fedora@famillecollet.com>
 Date: Fri, 9 Sep 2016 17:23:27 +0200
 Subject: [PATCH 2/2] install redis-check-rdb as a symlink instead of duplicating
@@ -9,7 +9,7 @@ Subject: [PATCH 2/2] install redis-check-rdb as a symlink instead of duplicating
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/Makefile b/src/Makefile
-index 4a8a326..a1bbfe9 100644
+index fdbe36a..c3083f8 100644
 --- a/src/Makefile
 +++ b/src/Makefile
 @@ -287,6 +287,6 @@ install: all
@@ -22,5 +22,5 @@ index 4a8a326..a1bbfe9 100644
 +	@ln -sf $(REDIS_SERVER_NAME) $(INSTALL_BIN)/$(REDIS_CHECK_RDB_NAME)
 +	@ln -sf $(REDIS_SERVER_NAME) $(INSTALL_BIN)/$(REDIS_CHECK_AOF_NAME)
 -- 
-2.9.3
+2.13.5
 

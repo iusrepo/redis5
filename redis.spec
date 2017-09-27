@@ -17,8 +17,8 @@
 %global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
-Version:           4.0.1
-Release:           2%{?dist}
+Version:           4.0.2
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -32,8 +32,8 @@ Source6:           %{name}-shutdown
 Source7:           %{name}-limit-systemd
 Source8:           %{name}-limit-init
 # To refresh patches:
-# tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%{version} baseline"
-# git am %{patches}
+# tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%%{version} baseline"
+# git am %%{patches}
 # Then refresh your patches
 # git format-patch HEAD~<number of expected patches>
 # Update configuration for Fedora
@@ -100,6 +100,7 @@ You can use Redis from most programming languages also.
 
 %package           devel
 Summary:           Development header for Redis module development
+BuildArch:         noarch
 # Header-Only Library (https://fedoraproject.org/wiki/Packaging:Guidelines)
 Provides:          %{name}-static = %{version}-%{release}
 
@@ -125,46 +126,27 @@ rm -frv deps/jemalloc
 %patch0001 -p1
 %patch0002 -p1
 
-# No hidden build.
-sed -i -e 's|\t@|\t|g' deps/lua/src/Makefile
-sed -i -e 's|$(QUIET_CC)||g' src/Makefile
-sed -i -e 's|$(QUIET_LINK)||g' src/Makefile
-sed -i -e 's|$(QUIET_INSTALL)||g' src/Makefile
 # Use system jemalloc library
 sed -i -e '/cd jemalloc && /d' deps/Makefile
 sed -i -e 's|../deps/jemalloc/lib/libjemalloc.a|-ljemalloc -ldl|g' src/Makefile
 sed -i -e 's|-I../deps/jemalloc.*|-DJEMALLOC_NO_DEMANGLE -I/usr/include/jemalloc|g' src/Makefile
-# Ensure deps are built with proper flags
-sed -i -e 's|$(CFLAGS)|%{optflags} -fPIC|g' deps/Makefile
-sed -i -e 's|OPTIMIZATION?=-O3|OPTIMIZATION=%{optflags}|g' deps/hiredis/Makefile
-sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/hiredis/Makefile
-sed -i -e 's|$(CFLAGS)|%{optflags} -fPIC|g' deps/linenoise/Makefile
-sed -i -e 's|$(LDFLAGS)|%{?__global_ldflags}|g' deps/linenoise/Makefile
 # Configuration file changes and additions
 sed -i -e 's|^logfile .*$|logfile /var/log/redis/redis.log|g' redis.conf
 sed -i -e '$ alogfile /var/log/redis/sentinel.log' sentinel.conf
 sed -i -e 's|^dir .*$|dir /var/lib/redis|g' redis.conf
-%if 0%{?with_systemd}
-sed -i -e 's|^supervised .*$|supervised systemd|g' redis.conf
-sed -i -e '$ asupervised systemd|g' sentinel.conf
+
+%if 0%{?with_perftools}
+%global malloc_flags	MALLOC=tcmalloc
+%else
+%global malloc_flags	MALLOC=jemalloc
 %endif
+%global make_flags	DEBUG="" V="echo" LDFLAGS="%{?__global_ldflags}" CFLAGS+="%{optflags} -fPIC" %{malloc_flags} INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 
 %build
-make %{?_smp_mflags} \
-    DEBUG="" \
-    LDFLAGS="%{?__global_ldflags}" \
-    CFLAGS+="%{optflags} -fPIC" \
-    LUA_LDFLAGS+="%{?__global_ldflags}" \
-%if 0%{?with_perftools}
-    MALLOC=tcmalloc \
-%else
-    MALLOC=jemalloc \
-%endif
-    INSTALL="install -p" PREFIX=%{buildroot}%{_prefix} \
-    all
+make %{?_smp_mflags} %{make_flags} all
 
 %install
-make install INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
+make %{make_flags} install
 
 # Filesystem.
 install -d %{buildroot}%{_sharedstatedir}/%{name}
@@ -306,15 +288,15 @@ fi
 
 
 %changelog
-
-* Wed Sep 06 2017 Nathan Scott <nathans@redhat.com> - 4.0.1-2
-- Switch to using Type=notify for Redis systemd services (RHBZ #1172841)
-- Add Provides:bundled hiredis, linenoise, lua-libs clauses (RHBZ #788500)
-
-* Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 4.0.1-1
-- Upstream 4.0.1 release.  (RHBZ #1389592)
+* Wed Sep 27 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-1
+- Upstream 4.0.2 release.  (RHBZ #1389592)
 - Add redis-devel for loadable module development.
 - Provide redis-check-aof as a symlink to redis-server also now.
+
+* Tue Sep 26 2017 Nathan Scott <nathans@redhat.com> - 3.2.11-1
+- Upstream 3.2.11 bug-fix-only release
+- Switch to using Type=notify for Redis systemd services (RHBZ #1172841)
+- Add Provides:bundled hiredis, linenoise, lua-libs clauses (RHBZ #788500)
 
 * Mon Aug 14 2017 Nathan Scott <nathans@redhat.com> - 3.2.10-2
 - Add redis-trib based on patch from Sebastian Saletnik.  (RHBZ #1215654)
