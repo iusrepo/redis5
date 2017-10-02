@@ -1,0 +1,2 @@
+%redis_modules_abi 1
+%redis_modules_dir %{_libdir}/redis/modules

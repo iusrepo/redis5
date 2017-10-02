@@ -1,4 +1,3 @@
-%global _hardened_build 1
 %global with_perftools 0
 
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
@@ -14,7 +13,7 @@
 %endif
 
 # Tests fail in mock, not in local build.
-%global with_tests   %{?_with_tests:1}%{!?_with_tests:0}
+%global with_tests %{?_with_tests:1}%{!?_with_tests:0}
 
 Name:              redis
 Version:           4.0.2
@@ -31,6 +30,7 @@ Source5:           %{name}.init
 Source6:           %{name}-shutdown
 Source7:           %{name}-limit-systemd
 Source8:           %{name}-limit-init
+Source9:           macros.%{name}
 # To refresh patches:
 # tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%%{version} baseline"
 # git am %%{patches}
@@ -72,6 +72,10 @@ Requires(postun):  initscripts
 Provides:          bundled(hiredis)
 Provides:          bundled(lua-libs)
 Provides:          bundled(linenoise)
+
+%global redis_modules_abi 1
+%global redis_modules_dir %{_libdir}/%{name}/modules
+Provides:          redis(modules_abi)%{?_isa} = %{redis_modules_abi}
 
 %description
 Redis is an advanced key-value store. It is often referred to as a data 
@@ -129,10 +133,19 @@ rm -frv deps/jemalloc
 sed -i -e '/cd jemalloc && /d' deps/Makefile
 sed -i -e 's|../deps/jemalloc/lib/libjemalloc.a|-ljemalloc -ldl|g' src/Makefile
 sed -i -e 's|-I../deps/jemalloc.*|-DJEMALLOC_NO_DEMANGLE -I/usr/include/jemalloc|g' src/Makefile
+
 # Configuration file changes and additions
 sed -i -e 's|^logfile .*$|logfile /var/log/redis/redis.log|g' redis.conf
 sed -i -e '$ alogfile /var/log/redis/sentinel.log' sentinel.conf
 sed -i -e 's|^dir .*$|dir /var/lib/redis|g' redis.conf
+
+# Module API version safety check
+api=`sed -n -e 's/#define REDISMODULE_APIVER_[0-9][0-9]* //p' src/redismodule.h`
+if test "$api" != "%{redis_modules_abi}"; then
+   : Error: Upstream API version is now ${api}, expecting %%{redis_modules_abi}.
+   : Update the redis_modules_abi macro, the rpmmacros file, and rebuild.
+   exit 1
+fi
 
 %if 0%{?with_perftools}
 %global malloc_flags	MALLOC=tcmalloc
@@ -151,6 +164,7 @@ make %{make_flags} install
 install -d %{buildroot}%{_sharedstatedir}/%{name}
 install -d %{buildroot}%{_localstatedir}/log/%{name}
 install -d %{buildroot}%{_localstatedir}/run/%{name}
+install -d %{buildroot}%{redis_modules_dir}
 
 # Install logrotate file.
 install -pDm644 %{S:1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
@@ -195,6 +209,10 @@ for page in man/man?/*; do
 done
 ln -s redis-server.1 %{buildroot}%{_mandir}/man1/redis-sentinel.1
 ln -s redis.conf.5   %{buildroot}%{_mandir}/man5/redis-sentinel.conf.5
+
+# Install rpm macros for redis modules
+mkdir -p %{buildroot}%{rpmmacrodir}
+install -pDm644 %{S:9} %{buildroot}%{rpmmacrodir}/macros.%{name}
 
 %check
 %if 0%{?with_tests}
@@ -257,7 +275,8 @@ fi
 %if 0%{?with_redistrib}
 %exclude %{_bindir}/%{name}-trib
 %endif
-%exclude %{_includedir}/%{name}module.h
+%exclude %{buildroot}%{rpmmacrodir}
+%exclude %{_includedir}
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
 %{_mandir}/man1/%{name}*
@@ -278,6 +297,7 @@ fi
 %files devel
 %license COPYING
 %{_includedir}/%{name}module.h
+%{rpmmacrodir}/*
 
 %if 0%{?with_redistrib}
 %files trib
