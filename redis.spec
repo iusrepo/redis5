@@ -6,6 +6,12 @@
 %global with_redistrib 0
 %endif
 
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 6
+%global with_pandoc 1
+%else
+%global with_pandoc 0
+%endif
+
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %global with_systemd 1
 %else
@@ -14,6 +20,11 @@
 
 # Tests fail in mock, not in local build.
 %global with_tests %{?_with_tests:1}%{!?_with_tests:0}
+
+# Commit IDs for the (unversioned) redis-doc repository
+# https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
+%global doc_commit 69a5512ae6a4ec77d7b1d0af6aac2224e8e83f95
+%global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
 Name:              redis
 Version:           4.0.2
@@ -31,6 +42,8 @@ Source6:           %{name}-shutdown
 Source7:           %{name}-limit-systemd
 Source8:           %{name}-limit-init
 Source9:           macros.%{name}
+Source10:          https://github.com/antirez/%{name}-doc/archive/%{doc_commit}/%{name}-doc-%{short_doc_commit}.tar.gz
+
 # To refresh patches:
 # tar xf redis-xxx.tar.gz && cd redis-xxx && git init && git add . && git commit -m "%%{version} baseline"
 # git am %%{patches}
@@ -48,12 +61,13 @@ BuildRequires:     jemalloc-devel
 %endif
 %if 0%{?with_tests}
 BuildRequires:     procps-ng
+BuildRequires:     tcl
+%endif
+%if 0%{?with_pandoc}
+BuildRequires:     pandoc
 %endif
 %if 0%{?with_systemd}
 BuildRequires:     systemd
-%endif
-%if 0%{?with_tests}
-BuildRequires:     tcl
 %endif
 # Required for redis-shutdown
 Requires:          /bin/awk
@@ -108,8 +122,20 @@ Summary:           Development header for Redis module development
 Provides:          %{name}-static = %{version}-%{release}
 
 %description       devel
-Header file required for building loadable Redis modules. Detailed API
-documentation available at [http://redis-module-redoc.readthedocs.io/]
+Header file required for building loadable Redis modules. Detailed
+API documentation is available in the redis-doc package.
+
+%package           doc
+Summary:           Documentation for Redis including man pages
+License:           CC-BY-SA
+BuildArch:         noarch
+
+# http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
+Conflicts:         redis < 4.0
+
+%description       doc
+Manual pages and detailed documentation for many aspects of Redis use,
+administration and development.
 
 %if 0%{?with_redistrib}
 %package           trib
@@ -124,7 +150,9 @@ and removal, status checks, resharding, rebalancing, and other operations.
 %endif
 
 %prep
+%setup -q -b 10
 %setup -q
+mv ../%{name}-doc-%{doc_commit} doc
 rm -frv deps/jemalloc
 %patch0001 -p1
 %patch0002 -p1
@@ -146,6 +174,13 @@ if test "$api" != "%{redis_modules_abi}"; then
    : Update the redis_modules_abi macro, the rpmmacros file, and rebuild.
    exit 1
 fi
+
+%if 0%{?with_pandoc}
+docs=`find doc -name \*.md | sed -e 's|.md$||g'`
+for doc in $docs; do
+    pandoc --standalone --from markdown --to html --output $doc.html $doc.md
+done
+%endif
 
 %if 0%{?with_perftools}
 %global malloc_flags	MALLOC=tcmalloc
@@ -209,6 +244,16 @@ for page in man/man?/*; do
 done
 ln -s redis-server.1 %{buildroot}%{_mandir}/man1/redis-sentinel.1
 ln -s redis.conf.5   %{buildroot}%{_mandir}/man5/redis-sentinel.conf.5
+
+# Install markdown and html pages
+doc=$(echo %{buildroot}/%{_docdir}/%{name})
+for page in $(find doc -name \*.md | sed -e 's|.md$||g'); do
+    base=$(echo $page | sed -e 's|doc/||g')
+    install -Dpm644 $page.md $doc/$base.md
+%if 0%{?with_pandoc}
+    install -Dpm644 $page.html $doc/$base.html
+%endif
+done
 
 # Install rpm macros for redis modules
 mkdir -p %{buildroot}%{rpmmacrodir}
@@ -275,12 +320,12 @@ fi
 %if 0%{?with_redistrib}
 %exclude %{_bindir}/%{name}-trib
 %endif
-%exclude %{buildroot}%{rpmmacrodir}
+%exclude %{rpmmacrodir}
 %exclude %{_includedir}
+%exclude %{_mandir}
+%exclude %{_docdir}
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
-%{_mandir}/man1/%{name}*
-%{_mandir}/man5/%{name}*
 %if 0%{?with_systemd}
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{name}-sentinel.service
@@ -299,6 +344,12 @@ fi
 %{_includedir}/%{name}module.h
 %{rpmmacrodir}/*
 
+%files doc
+%{_mandir}/man1/%{name}*
+%{_mandir}/man5/%{name}*
+%docdir %{_docdir}/%{name}
+%{_docdir}/%{name}/*
+
 %if 0%{?with_redistrib}
 %files trib
 %license COPYING
@@ -307,9 +358,10 @@ fi
 
 
 %changelog
-* Wed Sep 27 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-1
+* Tue Oct 31 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-1
 - Upstream 4.0.2 release.  (RHBZ #1389592)
 - Add redis-devel for loadable module development.
+- Add redis-doc for man pages and detailed documentation.
 - Provide redis-check-aof as a symlink to redis-server also now.
 
 * Tue Sep 26 2017 Nathan Scott <nathans@redhat.com> - 3.2.11-1
