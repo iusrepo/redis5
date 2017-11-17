@@ -28,7 +28,7 @@
 
 Name:              redis
 Version:           4.0.2
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -314,6 +314,8 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
 %attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
+%dir %attr(0750, redis, redis) %{_libdir}/%{name}
+%dir %attr(0750, redis, redis) %{redis_modules_dir}
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
 %dir %attr(0750, redis, redis) %ghost %{_localstatedir}/run/%{name}
@@ -358,6 +360,9 @@ fi
 
 
 %changelog
+* Fri Nov 17 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-2
+- Install the base modules directories, owned by the main package.
+
 * Tue Oct 31 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-1
 - Upstream 4.0.2 release.  (RHBZ #1389592)
 - Add redis-devel for loadable module development.
