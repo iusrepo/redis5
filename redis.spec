@@ -1,3 +1,11 @@
+#
+# Fedora spec file for redis
+#
+# License: MIT
+# http://opensource.org/licenses/MIT
+#
+# Please preserve changelog entries
+#
 %global with_perftools 0
 
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
@@ -26,9 +34,12 @@
 %global doc_commit 69a5512ae6a4ec77d7b1d0af6aac2224e8e83f95
 %global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
+# %%{rpmmacrodir} not usable on EL-6
+%global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
+
 Name:              redis
 Version:           4.0.2
-Release:           2%{?dist}
+Release:           3%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -256,14 +267,18 @@ for page in $(find doc -name \*.md | sed -e 's|.md$||g'); do
 done
 
 # Install rpm macros for redis modules
-mkdir -p %{buildroot}%{rpmmacrodir}
-install -pDm644 %{S:9} %{buildroot}%{rpmmacrodir}/macros.%{name}
+mkdir -p %{buildroot}%{macrosdir}
+install -pDm644 %{S:9} %{buildroot}%{macrosdir}/macros.%{name}
 
 %check
 %if 0%{?with_tests}
+# ERR Active defragmentation cannot be enabled: it requires a Redis server compiled
+# with a modified Jemalloc like the one shipped by default with the Redis source distribution
+sed -e '/memefficiency/d' -i tests/test_helper.tcl
+
 # https://github.com/antirez/redis/issues/1417 (for "taskset -c 1")
-taskset -c 1 make test ||:
-make test-sentinel ||:
+taskset -c 1 make %{make_flags} test
+make %{make_flags} test-sentinel
 %endif
 
 %pre
@@ -318,14 +333,13 @@ fi
 %dir %attr(0750, redis, redis) %{redis_modules_dir}
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/%{name}
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/%{name}
-%dir %attr(0750, redis, redis) %ghost %{_localstatedir}/run/%{name}
 %if 0%{?with_redistrib}
 %exclude %{_bindir}/%{name}-trib
 %endif
-%exclude %{rpmmacrodir}
+%exclude %{macrosdir}
 %exclude %{_includedir}
 %exclude %{_mandir}
-%exclude %{_docdir}
+%exclude %{_docdir}/%{name}/*
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
 %if 0%{?with_systemd}
@@ -335,16 +349,18 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/system/%{name}.service.d/limit.conf
 %dir %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d
 %config(noreplace) %{_sysconfdir}/systemd/system/%{name}-sentinel.service.d/limit.conf
+%dir %attr(0755, redis, redis) %ghost %{_localstatedir}/run/%{name}
 %else
 %{_initrddir}/%{name}
 %{_initrddir}/%{name}-sentinel
 %config(noreplace) %{_sysconfdir}/security/limits.d/95-%{name}.conf
+%dir %attr(0755, redis, redis) %{_localstatedir}/run/%{name}
 %endif
 
 %files devel
 %license COPYING
 %{_includedir}/%{name}module.h
-%{rpmmacrodir}/*
+%{macrosdir}/*
 
 %files doc
 %{_mandir}/man1/%{name}*
@@ -360,6 +376,13 @@ fi
 
 
 %changelog
+* Tue Nov 21 2017 Remi Collet <remi@remirepo.net> - 4.0.2-3
+- fix ownership of /usr/share/doc/redis
+- use make_flags for test to avoid rebuild and failure
+- fix rpm macro location on EL-6
+- add /var/run/redis on EL-6
+- add spec file license header
+
 * Fri Nov 17 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-2
 - Install the base modules directories, owned by the main package.
 
