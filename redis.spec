@@ -366,7 +366,7 @@ fi
 %{_mandir}/man1/%{name}*
 %{_mandir}/man5/%{name}*
 %docdir %{_docdir}/%{name}
-%{_docdir}/%{name}/*
+%{_docdir}/%{name}
 
 %if 0%{?with_redistrib}
 %files trib
