@@ -31,14 +31,14 @@
 
 # Commit IDs for the (unversioned) redis-doc repository
 # https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
-%global doc_commit 69a5512ae6a4ec77d7b1d0af6aac2224e8e83f95
+%global doc_commit dc402c61da3c015e49eb6fd00e4a0564d122d645
 %global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
 # %%{rpmmacrodir} not usable on EL-6
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.3
+Version:           4.0.4
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -377,6 +377,11 @@ fi
 
 
 %changelog
+* Fri Dec 01 2017 Nathan Scott <nathans@redhat.com> - 4.0.4-1
+- Upstream 4.0.4 release.
+- Update to current upstream redis-doc also.
+- Fix man page issues (RHBZ #1513594 and RHBZ #1515417).
+
 * Thu Nov 30 2017 Remi Collet <remi@remirepo.net> - 4.0.3-1
 - Redis 4.0.3
 - fix ownership of /usr/share/doc/redis
