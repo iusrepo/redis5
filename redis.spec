@@ -256,8 +256,11 @@ done
 ln -s redis-server.1 %{buildroot}%{_mandir}/man1/redis-sentinel.1
 ln -s redis.conf.5   %{buildroot}%{_mandir}/man5/redis-sentinel.conf.5
 
-# Install markdown and html pages
+# Install documentation and html pages
 doc=$(echo %{buildroot}/%{_docdir}/%{name})
+for page in 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO; do
+    install -Dpm644 $page $doc/$page
+done
 for page in $(find doc -name \*.md | sed -e 's|.md$||g'); do
     base=$(echo $page | sed -e 's|doc/||g')
     install -Dpm644 $page.md $doc/$base.md
@@ -325,7 +328,6 @@ fi
 %files
 %{!?_licensedir:%global license %%doc}
 %license COPYING
-%doc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}.conf
 %attr(0640, redis, root) %config(noreplace) %{_sysconfdir}/%{name}-sentinel.conf
@@ -338,10 +340,11 @@ fi
 %endif
 %exclude %{macrosdir}
 %exclude %{_includedir}
-%exclude %{_mandir}
 %exclude %{_docdir}/%{name}/*
 %{_bindir}/%{name}-*
 %{_libexecdir}/%{name}-*
+%{_mandir}/man1/%{name}*
+%{_mandir}/man5/%{name}*
 %if 0%{?with_systemd}
 %{_unitdir}/%{name}.service
 %{_unitdir}/%{name}-sentinel.service
@@ -363,8 +366,6 @@ fi
 %{macrosdir}/*
 
 %files doc
-%{_mandir}/man1/%{name}*
-%{_mandir}/man5/%{name}*
 %docdir %{_docdir}/%{name}
 %{_docdir}/%{name}
 
@@ -382,6 +383,8 @@ fi
 - fix rpm macro location on EL-6
 - add /var/run/redis on EL-6
 - add spec file license header
+- drop duplicated documentation from main package
+- keep man in main page
 
 * Fri Nov 17 2017 Nathan Scott <nathans@redhat.com> - 4.0.2-2
 - Install the base modules directories, owned by the main package.
