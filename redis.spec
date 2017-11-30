@@ -38,8 +38,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.2
-Release:           3%{?dist}
+Version:           4.0.3
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -377,7 +377,8 @@ fi
 
 
 %changelog
-* Tue Nov 21 2017 Remi Collet <remi@remirepo.net> - 4.0.2-3
+* Thu Nov 30 2017 Remi Collet <remi@remirepo.net> - 4.0.3-1
+- Redis 4.0.3
 - fix ownership of /usr/share/doc/redis
 - use make_flags for test to avoid rebuild and failure
 - fix rpm macro location on EL-6
