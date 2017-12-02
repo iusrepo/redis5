@@ -38,7 +38,7 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.4
+Version:           4.0.5
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -377,6 +377,12 @@ fi
 
 
 %changelog
+* Fri Dec  1 2017 Remi Collet <remi@remirepo.net> - 4.0.5-1
+- Redis 4.0.5 - Released Thu Dec 1 16:03:32 CET 2017
+- Upgrade urgency CRITICAL: Redis 4.0.4 fix for PSYNC2 was broken,
+  causing the slave to crash when receiving an RDB file from the
+  master that contained a duplicated Lua script.
+
 * Fri Dec 01 2017 Nathan Scott <nathans@redhat.com> - 4.0.4-1
 - Upstream 4.0.4 release.
 - Update to current upstream redis-doc also.
