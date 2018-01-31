@@ -31,14 +31,14 @@
 
 # Commit IDs for the (unversioned) redis-doc repository
 # https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
-%global doc_commit dc402c61da3c015e49eb6fd00e4a0564d122d645
+%global doc_commit 38c2bd6f5331aad382494b3c7833b0cc2b92222a
 %global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
 # %%{rpmmacrodir} not usable on EL-6
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.6
+Version:           4.0.7
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -377,6 +377,9 @@ fi
 
 
 %changelog
+* Wed Jan 31 2018 Nathan Scott <nathans@redhat.com> - 4.0.7-1
+- Upstream 4.0.7 release.
+
 * Thu Dec  7 2017 Nathan Scott <nathans@redhat.com> - 4.0.6-1
 - Upstream 4.0.6 release.
 
