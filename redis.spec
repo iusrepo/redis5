@@ -38,7 +38,7 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.7
+Version:           4.0.8
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
@@ -377,6 +377,9 @@ fi
 
 
 %changelog
+* Wed Feb  7 2018 Nathan Scott <nathans@redhat.com> - 4.0.8-1
+- Upstream 4.0.8 release.
+
 * Wed Jan 31 2018 Nathan Scott <nathans@redhat.com> - 4.0.7-1
 - Upstream 4.0.7 release.
 
