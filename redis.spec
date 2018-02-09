@@ -39,7 +39,7 @@
 
 Name:              redis
 Version:           4.0.8
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -377,6 +377,9 @@ fi
 
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.8-2
+- Escape macros in %%changelog
+
 * Wed Feb  7 2018 Nathan Scott <nathans@redhat.com> - 4.0.8-1
 - Upstream 4.0.8 release.
 
@@ -438,7 +441,7 @@ fi
 * Mon May 29 2017 Nathan Scott <nathans@redhat.com> - 3.2.9-1
 - Upstream 3.2.9
 - Add RuntimeDirectory=redis to systemd unit file (RHBZ #1454700)
-- Mark rundir as %ghost since it may disappear (tmpfs - #1454700)
+- Mark rundir as %%ghost since it may disappear (tmpfs - #1454700)
 - Fix a shutdown failure with Unix domain sockets (RHBZ #1444988)
 
 * Mon Feb 20 2017 Haïkel Guémar <hguemar@fedoraproject.org> - 3.2.8-1
