@@ -38,8 +38,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.8
-Release:           2%{?dist}
+Version:           4.0.9
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 License:           BSD
 URL:               http://redis.io
@@ -377,6 +377,9 @@ fi
 
 
 %changelog
+* Tue Mar 27 2018 Nathan Scott <nathans@redhat.com> - 4.0.9-1
+- Upstream 4.0.9 release.
+
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 4.0.8-2
 - Escape macros in %%changelog
 
