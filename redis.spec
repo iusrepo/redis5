@@ -6,7 +6,6 @@
 #
 # Please preserve changelog entries
 #
-%global with_perftools 0
 
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %global with_redistrib 1
@@ -39,9 +38,11 @@
 
 Name:              redis
 Version:           4.0.10
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
-License:           BSD
+# redis, linenoise, lzf, hiredis are BSD
+# lua is MIT
+License:           BSD and MIT
 URL:               http://redis.io
 Source0:           http://download.redis.io/releases/%{name}-%{version}.tar.gz
 Source1:           %{name}.logrotate
@@ -65,11 +66,7 @@ Source10:          https://github.com/antirez/%{name}-doc/archive/%{doc_commit}/
 Patch0001:         0001-1st-man-pageis-for-redis-cli-redis-benchmark-redis-c.patch
 # https://github.com/antirez/redis/pull/3494 - symlink
 Patch0002:         0002-install-redis-check-rdb-as-a-symlink-instead-of-dupl.patch
-%if 0%{?with_perftools}
-BuildRequires:     gperftools-devel
-%else
 BuildRequires:     jemalloc-devel
-%endif
 %if 0%{?with_tests}
 BuildRequires:     procps-ng
 BuildRequires:     tcl
@@ -97,6 +94,7 @@ Requires(postun):  initscripts
 Provides:          bundled(hiredis)
 Provides:          bundled(lua-libs)
 Provides:          bundled(linenoise)
+Provides:          bundled(lzf)
 
 %global redis_modules_abi 1
 %global redis_modules_dir %{_libdir}/%{name}/modules
@@ -168,6 +166,9 @@ rm -frv deps/jemalloc
 %patch0001 -p1
 %patch0002 -p1
 
+mv deps/lua/COPYRIGHT    COPYRIGHT-lua
+mv deps/hiredis/COPYING  COPYING-hiredis
+
 # Use system jemalloc library
 sed -i -e '/cd jemalloc && /d' deps/Makefile
 sed -i -e 's|../deps/jemalloc/lib/libjemalloc.a|-ljemalloc -ldl|g' src/Makefile
@@ -193,11 +194,7 @@ for doc in $docs; do
 done
 %endif
 
-%if 0%{?with_perftools}
-%global malloc_flags	MALLOC=tcmalloc
-%else
 %global malloc_flags	MALLOC=jemalloc
-%endif
 %global make_flags	DEBUG="" V="echo" LDFLAGS="%{?__global_ldflags}" CFLAGS+="%{optflags} -fPIC" %{malloc_flags} INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 
 %build
@@ -362,6 +359,8 @@ fi
 
 %files devel
 %license COPYING
+%license COPYRIGHT-lua
+%license COPYING-hiredis
 %{_includedir}/%{name}module.h
 %{macrosdir}/*
 
@@ -377,6 +376,11 @@ fi
 
 
 %changelog
+* Mon Jun 25 2018 Remi Collet <rcollet@redhat.com> - 4.0.10-2
+- fix License (BSD and MIT)
+- add bundled libraries licences
+- add information about bundled lzf
+
 * Thu Jun 14 2018 Nathan Scott <nathans@redhat.com> - 4.0.10-1
 - Upstream 4.0.10 release.
 
