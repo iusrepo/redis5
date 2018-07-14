@@ -38,7 +38,7 @@
 
 Name:              redis
 Version:           4.0.10
-Release:           2%{?dist}
+Release:           3%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
 # lua is MIT
@@ -376,6 +376,9 @@ fi
 
 
 %changelog
+* Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.10-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Mon Jun 25 2018 Remi Collet <rcollet@redhat.com> - 4.0.10-2
 - fix License (BSD and MIT)
 - add bundled libraries licences
