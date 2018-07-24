@@ -66,6 +66,7 @@ Source10:          https://github.com/antirez/%{name}-doc/archive/%{doc_commit}/
 Patch0001:         0001-1st-man-pageis-for-redis-cli-redis-benchmark-redis-c.patch
 # https://github.com/antirez/redis/pull/3494 - symlink
 Patch0002:         0002-install-redis-check-rdb-as-a-symlink-instead-of-dupl.patch
+BuildRequires:  gcc
 BuildRequires:     jemalloc-devel
 %if 0%{?with_tests}
 BuildRequires:     procps-ng
