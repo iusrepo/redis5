@@ -13,12 +13,6 @@
 %global with_redistrib 0
 %endif
 
-%if 0%{?fedora} >= 15 || 0%{?rhel} >= 6
-%global with_pandoc 1
-%else
-%global with_pandoc 0
-%endif
-
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %global with_systemd 1
 %else
@@ -37,8 +31,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.10
-Release:           3%{?dist}
+Version:           4.0.11
+Release:           1%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
 # lua is MIT
@@ -71,9 +65,6 @@ BuildRequires:     jemalloc-devel
 %if 0%{?with_tests}
 BuildRequires:     procps-ng
 BuildRequires:     tcl
-%endif
-%if 0%{?with_pandoc}
-BuildRequires:     pandoc
 %endif
 %if 0%{?with_systemd}
 BuildRequires:     systemd
@@ -188,13 +179,6 @@ if test "$api" != "%{redis_modules_abi}"; then
    exit 1
 fi
 
-%if 0%{?with_pandoc}
-docs=`find doc -name \*.md | sed -e 's|.md$||g'`
-for doc in $docs; do
-    pandoc --standalone --from markdown --to html --output $doc.html $doc.md
-done
-%endif
-
 %global malloc_flags	MALLOC=jemalloc
 %global make_flags	DEBUG="" V="echo" LDFLAGS="%{?__global_ldflags}" CFLAGS+="%{optflags} -fPIC" %{malloc_flags} INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 
@@ -262,9 +246,6 @@ done
 for page in $(find doc -name \*.md | sed -e 's|.md$||g'); do
     base=$(echo $page | sed -e 's|doc/||g')
     install -Dpm644 $page.md $doc/$base.md
-%if 0%{?with_pandoc}
-    install -Dpm644 $page.html $doc/$base.html
-%endif
 done
 
 # Install rpm macros for redis modules
@@ -377,6 +358,10 @@ fi
 
 
 %changelog
+* Thu Aug 09 2018 Nathan Scott <nathans@redhat.com> - 4.0.11-1
+- Drop the pandoc build dependency, install only markdown.
+- Upstream 4.0.11 release.
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.10-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
