@@ -1,6 +1,8 @@
 [Unit]
 Description=Redis Sentinel
 After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart=/usr/bin/redis-sentinel /etc/redis-sentinel.conf --supervised systemd

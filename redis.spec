@@ -24,14 +24,14 @@
 
 # Commit IDs for the (unversioned) redis-doc repository
 # https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
-%global doc_commit b9d39b104e0beff9e70b3d738c17d48491d6646a
+%global doc_commit 65e68652b6cae915ea952f63edf8973cccc32567
 %global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
 # %%{rpmmacrodir} not usable on EL-6
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis
-Version:           4.0.11
+Version:           5.0.0
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
@@ -358,6 +358,10 @@ fi
 
 
 %changelog
+* Thu Oct 18 2018 Nathan Scott <nathans@redhat.com> - 5.0.0-1
+- Update systemd service files for network-online requirement
+- Upstream 5.0.0 release.
+
 * Thu Aug 09 2018 Nathan Scott <nathans@redhat.com> - 4.0.11-1
 - Drop the pandoc build dependency, install only markdown.
 - Upstream 4.0.11 release.
