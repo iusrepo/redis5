@@ -31,8 +31,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis5
-Version:           5.0.2
-Release:           1%{?dist}
+Version:           5.0.3
+Release:           1.ius%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
 # lua is MIT
@@ -355,6 +355,9 @@ fi
 
 
 %changelog
+* Thu Dec 13 2018 Carl George <carl@george.computer> - 5.0.3-1.ius
+- Latest upstream
+
 * Wed Nov 28 2018 evitalis <evitalis@users.noreply.github.com> - 5.0.2-1.ius
 - Move from Fedora to IUS
 
