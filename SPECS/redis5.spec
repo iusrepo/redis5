@@ -20,7 +20,7 @@
 %endif
 
 # Tests fail in mock, not in local build.
-%global with_tests %{?_with_tests:1}%{!?_with_tests:0}
+%global with_tests 1
 
 # Commit IDs for the (unversioned) redis-doc repository
 # https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
@@ -357,6 +357,7 @@ fi
 %changelog
 * Thu Dec 13 2018 Carl George <carl@george.computer> - 5.0.3-1.ius
 - Latest upstream
+- Enable test suite
 
 * Wed Nov 28 2018 evitalis <evitalis@users.noreply.github.com> - 5.0.2-1.ius
 - Move from Fedora to IUS
