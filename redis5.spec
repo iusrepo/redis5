@@ -176,6 +176,10 @@ if test "$api" != "%{redis_modules_abi}"; then
    exit 1
 fi
 
+# skip unstable tests
+# https://github.com/antirez/redis/issues/5463
+sed -e '/unit\/pendingquerybuf/d' -i tests/test_helper.tcl
+
 %global malloc_flags	MALLOC=jemalloc
 %global make_flags	DEBUG="" V="echo" LDFLAGS="%{?__global_ldflags}" CFLAGS+="%{optflags} -fPIC" %{malloc_flags} INSTALL="install -p" PREFIX=%{buildroot}%{_prefix}
 
@@ -358,6 +362,7 @@ fi
 * Thu Dec 13 2018 Carl George <carl@george.computer> - 5.0.3-1
 - Latest upstream
 - Enable test suite
+- Skip unstable pendingquerybuf test
 
 * Wed Nov 28 2018 evitalis <evitalis@users.noreply.github.com> - 5.0.2-1
 - Port from Fedora to IUS
