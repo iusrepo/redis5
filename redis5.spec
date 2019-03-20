@@ -163,9 +163,9 @@ sed -i -e '/cd jemalloc && /d' deps/Makefile
 sed -i -e 's|../deps/jemalloc/lib/libjemalloc.a|-ljemalloc -ldl|g' src/Makefile
 sed -i -e 's|-I../deps/jemalloc.*|-DJEMALLOC_NO_DEMANGLE -I/usr/include/jemalloc|g' src/Makefile
 
-# Configuration file changes and additions
+# Configuration file changes
 sed -i -e 's|^logfile .*$|logfile /var/log/redis/redis.log|g' redis.conf
-sed -i -e '$ alogfile /var/log/redis/sentinel.log' sentinel.conf
+sed -i -e 's|^logfile .*$|logfile /var/log/redis/sentinel.log|g' sentinel.conf
 sed -i -e 's|^dir .*$|dir /var/lib/redis|g' redis.conf
 
 # Module API version safety check
@@ -362,6 +362,7 @@ fi
 * Wed Mar 20 2019 Carl George <carl@george.computer> - 5.0.4-1
 - Latest upstream (including docs)
 - Sync patches with Fedora
+- Fix sentinel.conf logfile line addition (Fedora)
 
 * Thu Dec 13 2018 Carl George <carl@george.computer> - 5.0.3-1
 - Latest upstream
