@@ -24,14 +24,14 @@
 
 # Commit IDs for the (unversioned) redis-doc repository
 # https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
-%global doc_commit a59c016fabe113539731621c99d52ef0d656dbae
+%global doc_commit 8c322492b0ad14067bd4cebce20f3509d989370d
 %global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
 # %%{rpmmacrodir} not usable on EL-6
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis5
-Version:           5.0.3
+Version:           5.0.4
 Release:           1.ius%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
@@ -60,7 +60,7 @@ Source10:          https://github.com/antirez/redis-doc/archive/%{doc_commit}/re
 Patch0001:         0001-1st-man-pageis-for-redis-cli-redis-benchmark-redis-c.patch
 # https://github.com/antirez/redis/pull/3494 - symlink
 Patch0002:         0002-install-redis-check-rdb-as-a-symlink-instead-of-dupl.patch
-BuildRequires:  gcc
+BuildRequires:     gcc
 BuildRequires:     jemalloc-devel
 %if 0%{?with_tests}
 BuildRequires:     procps-ng
@@ -359,6 +359,10 @@ fi
 
 
 %changelog
+* Wed Mar 20 2019 Carl George <carl@george.computer> - 5.0.4-1.ius
+- Latest upstream (including docs)
+- Sync patches with Fedora
+
 * Thu Dec 13 2018 Carl George <carl@george.computer> - 5.0.3-1.ius
 - Latest upstream
 - Enable test suite
