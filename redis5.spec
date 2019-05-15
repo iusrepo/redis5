@@ -7,18 +7,6 @@
 # Please preserve changelog entries
 #
 
-%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
-%global with_redistrib 1
-%else
-%global with_redistrib 0
-%endif
-
-%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
-%global with_systemd 1
-%else
-%global with_systemd 0
-%endif
-
 # Tests fail in mock, not in local build.
 %global with_tests 1
 
@@ -32,7 +20,7 @@
 
 Name:              redis5
 Version:           5.0.4
-Release:           1%{?dist}
+Release:           2%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
 # lua is MIT
@@ -66,23 +54,16 @@ BuildRequires:     jemalloc-devel
 BuildRequires:     procps-ng
 BuildRequires:     tcl
 %endif
-%if 0%{?with_systemd}
 BuildRequires:     systemd
-%endif
+# redis-trib functionality migrated to redis-cli
+Obsoletes:         redis5-trib
 # Required for redis-shutdown
 Requires:          /bin/awk
 Requires:          logrotate
 Requires(pre):     shadow-utils
-%if 0%{?with_systemd}
 Requires(post):    systemd
 Requires(preun):   systemd
 Requires(postun):  systemd
-%else
-Requires(post):    chkconfig
-Requires(preun):   chkconfig
-Requires(preun):   initscripts
-Requires(postun):  initscripts
-%endif
 Provides:          bundled(hiredis)
 Provides:          bundled(lua-libs)
 Provides:          bundled(linenoise)
@@ -138,18 +119,6 @@ BuildArch:         noarch
 Manual pages and detailed documentation for many aspects of Redis use,
 administration and development.
 
-%if 0%{?with_redistrib}
-%package           trib
-Summary:           Cluster management script for Redis
-BuildArch:         noarch
-Requires:          ruby
-Requires:          rubygem-redis
-
-%description       trib
-Redis cluster management utility providing cluster creation, node addition
-and removal, status checks, resharding, rebalancing, and other operations.
-%endif
-
 %prep
 %autosetup -n redis-%{version} -a 10 -p 1
 mv redis-doc-%{doc_commit} doc
@@ -203,7 +172,6 @@ install -pDm640 redis.conf %{buildroot}%{_sysconfdir}/redis.conf
 install -pDm640 sentinel.conf %{buildroot}%{_sysconfdir}/redis-sentinel.conf
 
 # Install systemd unit files.
-%if 0%{?with_systemd}
 mkdir -p %{buildroot}%{_unitdir}
 install -pm644 %{S:3} %{buildroot}%{_unitdir}
 install -pm644 %{S:2} %{buildroot}%{_unitdir}
@@ -211,11 +179,6 @@ install -pm644 %{S:2} %{buildroot}%{_unitdir}
 # Install systemd limit files (requires systemd >= 204)
 install -p -D -m 644 %{S:7} %{buildroot}%{_sysconfdir}/systemd/system/redis.service.d/limit.conf
 install -p -D -m 644 %{S:7} %{buildroot}%{_sysconfdir}/systemd/system/redis-sentinel.service.d/limit.conf
-%else # install SysV service files
-install -pDm755 %{S:4} %{buildroot}%{_initrddir}/redis-sentinel
-install -pDm755 %{S:5} %{buildroot}%{_initrddir}/redis
-install -p -D -m 644 %{S:8} %{buildroot}%{_sysconfdir}/security/limits.d/95-redis.conf
-%endif
 
 # Fix non-standard-executable-perm error.
 chmod 755 %{buildroot}%{_bindir}/redis-*
@@ -225,11 +188,6 @@ install -pDm755 %{S:6} %{buildroot}%{_libexecdir}/redis-shutdown
 
 # Install redis module header
 install -pDm644 src/redismodule.h %{buildroot}%{_includedir}/redismodule.h
-
-%if 0%{?with_redistrib}
-# Install redis-trib
-install -pDm755 src/redis-trib.rb %{buildroot}%{_bindir}/redis-trib
-%endif
 
 # Install man pages
 man=$(dirname %{buildroot}%{_mandir})
@@ -273,37 +231,16 @@ useradd -r -g redis -d %{_sharedstatedir}/redis -s /sbin/nologin \
 exit 0
 
 %post
-%if 0%{?with_systemd}
 %systemd_post redis.service
 %systemd_post redis-sentinel.service
-%else
-chkconfig --add redis
-chkconfig --add redis-sentinel
-%endif
 
 %preun
-%if 0%{?with_systemd}
 %systemd_preun redis.service
 %systemd_preun redis-sentinel.service
-%else
-if [ $1 -eq 0 ] ; then
-    service redis stop &> /dev/null
-    chkconfig --del redis &> /dev/null
-    service redis-sentinel stop &> /dev/null
-    chkconfig --del redis-sentinel &> /dev/null
-fi
-%endif
 
 %postun
-%if 0%{?with_systemd}
 %systemd_postun_with_restart redis.service
 %systemd_postun_with_restart redis-sentinel.service
-%else
-if [ "$1" -ge "1" ] ; then
-    service redis condrestart >/dev/null 2>&1 || :
-    service redis-sentinel condrestart >/dev/null 2>&1 || :
-fi
-%endif
 
 %files
 %{!?_licensedir:%global license %%doc}
@@ -315,9 +252,6 @@ fi
 %dir %attr(0750, redis, redis) %{redis_modules_dir}
 %dir %attr(0750, redis, redis) %{_sharedstatedir}/redis
 %dir %attr(0750, redis, redis) %{_localstatedir}/log/redis
-%if 0%{?with_redistrib}
-%exclude %{_bindir}/redis-trib
-%endif
 %exclude %{macrosdir}
 %exclude %{_includedir}
 %exclude %{_docdir}/redis/*
@@ -325,7 +259,6 @@ fi
 %{_libexecdir}/redis-*
 %{_mandir}/man1/redis*
 %{_mandir}/man5/redis*
-%if 0%{?with_systemd}
 %{_unitdir}/redis.service
 %{_unitdir}/redis-sentinel.service
 %dir %{_sysconfdir}/systemd/system/redis.service.d
@@ -333,12 +266,6 @@ fi
 %dir %{_sysconfdir}/systemd/system/redis-sentinel.service.d
 %config(noreplace) %{_sysconfdir}/systemd/system/redis-sentinel.service.d/limit.conf
 %dir %attr(0755, redis, redis) %ghost %{_localstatedir}/run/redis
-%else
-%{_initrddir}/redis
-%{_initrddir}/redis-sentinel
-%config(noreplace) %{_sysconfdir}/security/limits.d/95-redis.conf
-%dir %attr(0755, redis, redis) %{_localstatedir}/run/redis
-%endif
 
 %files devel
 %license COPYING
@@ -351,14 +278,11 @@ fi
 %docdir %{_docdir}/redis
 %{_docdir}/redis
 
-%if 0%{?with_redistrib}
-%files trib
-%license COPYING
-%{_bindir}/redis-trib
-%endif
-
-
 %changelog
+* Sat May 11 2019 Nathan Scott <nathans@redhat.com> - 5.0.4-2
+- Obsolete redis-trib - functionality now in redis-cli(1)
+- Remove old chkconfig support, all systemd platforms now
+
 * Wed Mar 20 2019 Carl George <carl@george.computer> - 5.0.4-1
 - Latest upstream (including docs)
 - Sync patches with Fedora
