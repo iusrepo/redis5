@@ -12,14 +12,14 @@
 
 # Commit IDs for the (unversioned) redis-doc repository
 # https://fedoraproject.org/wiki/Packaging:SourceURL "Commit Revision"
-%global doc_commit 4cd19bb1c3e3e00a8ff62a1dec5c2c6bcf9bc4bf
+%global doc_commit abfe8e0698564af7260b4c1a0ea4d21424d14a88
 %global short_doc_commit %(c=%{doc_commit}; echo ${c:0:7})
 
 # %%{rpmmacrodir} not usable on EL-6
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis5
-Version:           5.0.7
+Version:           5.0.9
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
@@ -54,8 +54,6 @@ BuildRequires:     procps-ng
 BuildRequires:     tcl
 %endif
 BuildRequires:     systemd
-# redis-trib functionality migrated to redis-cli
-Obsoletes:         redis5-trib
 # Required for redis-shutdown
 Requires:          /bin/awk
 Requires:          logrotate
@@ -272,6 +270,9 @@ exit 0
 %{_docdir}/redis
 
 %changelog
+* Tue Apr 21 2020 Carl George <carl@george.computer> - 5.0.9-1
+- Latest upstream
+
 * Tue Nov 19 2019 Carl George <carl@george.computer> - 5.0.7-1
 - Latest upstream
 
