@@ -19,7 +19,7 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:              redis5
-Version:           5.0.9
+Version:           5.0.13
 Release:           1%{?dist}
 Summary:           A persistent key-value database
 # redis, linenoise, lzf, hiredis are BSD
@@ -270,6 +270,9 @@ exit 0
 %{_docdir}/redis
 
 %changelog
+* Fri Oct 01 2021 Carl George <carl@george.computer> - 5.0.13-1
+- Latest upstream
+
 * Tue Apr 21 2020 Carl George <carl@george.computer> - 5.0.9-1
 - Latest upstream
 
